@@ -1,0 +1,26 @@
+{
+  "name": "sitio-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "web.js",
+  "scripts": {
+    "dev": "nodemon web.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ljz510/sitio-web.git"
+  },
+  "author": "SBouza",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ljz510/sitio-web/issues"
+  },
+  "homepage": "https://github.com/ljz510/sitio-web#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
