@@ -26,7 +26,7 @@ tiempo_estimado	int
 }
 
 create table IngPorReceta {
-id serial primary key.	
+id serial primary key,	
 receta_id	int REFERENCES Receta(id)
 ingrediente_id	int REFERENCES Ingrediente(id)
 cantidad int,
