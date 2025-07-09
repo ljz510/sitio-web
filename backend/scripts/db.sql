@@ -1,34 +1,33 @@
-create table Receta{
-id	serial primary key,
-nombre varchar(100),
-descripcion	varchar(200),
-tiempo_preparacion int,
-porciones int,
-dificultad varchar(50)
-}
+CREATE TABLE Receta (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(200) NOT NULL,
+    tiempo_preparacion INT,
+    porciones INT,
+    dificultad VARCHAR(50) NOT NULL,
+    imagen VARCHAR(100)
+);
 
-create table Ingrediente {
+CREATE TABLE Ingrediente (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    tipo VARCHAR(100) NOT NULL,
+    calorias INT,
+    descripcion VARCHAR(150) NOT NULL
+);
 
-id	serial primary key,
-nombre	varchar(100),
-tipo varchar(100),
-calorias	int,
-descripcion	varchar(150)
+CREATE TABLE Pasos (
+    id SERIAL PRIMARY KEY,
+    receta_id INT REFERENCES Receta(id) ON DELETE CASCADE,
+    numero_paso INT,
+    instruccion VARCHAR(250) NOT NULL,
+    tiempo_estimado INT
+);
 
-}
-
-create table Pasos {
-id	serial primary key,
-receta_id	int REFERENCES Receta (id),
-numero_paso	int,
-instruccion	varchar (250),
-tiempo_estimado	int
-}
-
-create table IngPorReceta {
-id serial primary key,	
-receta_id	int REFERENCES Receta(id)
-ingrediente_id	int REFERENCES Ingrediente(id)
-cantidad int,
-unidad int
-}
+CREATE TABLE IngPorReceta (
+    id SERIAL PRIMARY KEY,
+    receta_id INT REFERENCES Receta(id) ON DELETE CASCADE,--Al borrar una receta, se borran automáticamente sus pasos e ingredientes.
+    ingrediente_id INT REFERENCES Ingrediente(id),
+    cantidad INT,
+    unidad VARCHAR(20)
+);
