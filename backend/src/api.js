@@ -9,6 +9,10 @@ app.get('/api/health', (req,res) => {
     res.json({ status: 'OK' });
 });
 
+app.post('/api/recetas', (req, res)=>{
+    
+})
+
 app.listen(PORT, () => {
     console.log("Server Listening on PORT:",PORT)
 })
