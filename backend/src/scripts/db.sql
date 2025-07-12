@@ -24,7 +24,7 @@ CREATE TABLE Pasos (
     dificultad VARCHAR(50) NOT NULL,
     tiempo_estimado INT,
     receta_entera VARCHAR(300) NOT NULL,
-    apto_para VARCHAR(100) NOT NULL,
+    apto_para VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE IngPorReceta (
