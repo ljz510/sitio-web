@@ -5,15 +5,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recetas Deliciosas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="img/logo.png" type="image/png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
+<script src="./js/main.js"></script>
 <body>
   <nav>
     <div>
-      <a href="index.html">
-        <img src="img/logo.png" alt="Logo" height="40" class="me-2">
-        <span>Recetas Deliciosas</span></a>
+    
+      <a href="index.html" style="display: flex; align-items: center; gap: 8px;">
+        <img src="img/logo.png" alt="Logo" style="height: 40px; width: auto;">
+        <span>Recetas Deliciosas</span>
+      </a>
       <div>
         <ul><li><a href="index.html">Inicio</a></li>
           <li><a href="ver_recetas.html">Ver recetas</a></li>
@@ -34,11 +38,8 @@
 
     <section>
       <h2>Últimas recetas</h2>
-      <ul>
-        <!-- Temporalmente links, pero faltan imagenes-->
-        <li><a href="ver_recetas/ver_receta1.html">Receta 1</a></li>
-        <li><a href="ver_recetas/ver_receta2.html">Receta 2</a></li>
-        <li><a href="ver_recetas/ver_receta3.html">Receta 3</a></li>
+      <ul id="lista-recetas" class="grid grid-cols-3 gap-6 mt-6">
+        <!-- li << lista de recetas -->
       </ul>
     </section>
   </main>
