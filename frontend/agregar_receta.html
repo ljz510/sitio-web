@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>¡Agrega la receta que más te guste!</h1>
+</body>
+
+<form>  
+    <div>
+        <label for="nombre">Nombre de la receta:</label>
+        <input type="text" id="nombre" name="nombre" required>
+    </div>
+    <div>
+        <label for="ingredientes">Ingredientes:</label>
+        <textarea id="ingredientes" name="ingredientes" required></textarea>
+    </div>
+    <div>
+        <label for="instrucciones">Instrucciones:</label>
+        <textarea id="instrucciones" name="instrucciones" required></textarea>
+    </div>
+    <div>
+        <label for="imagen">Imagen de la receta:</label>
+        <input type="file" id="imagen" name="imagen" accept="image/*">
+    </div>
+    <button type="submit">Agregar Receta</button>
+</form>
+
+
+</html>
