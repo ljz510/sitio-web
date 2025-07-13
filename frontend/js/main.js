@@ -10,7 +10,8 @@ function mostrarRecetas() {
         const li = document.createElement('li');
         li.className = 'flex justify-center';
         li.innerHTML = `
-          <div class="w-60 bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+        <a href="detalle_receta.html?id=${receta.id}" 
+                <div class="w-64 bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
             <div >
               <img src="http://localhost:3000/images/${receta.imagen}"
                    alt="${receta.nombre}"
@@ -25,14 +26,11 @@ function mostrarRecetas() {
               <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">${receta.nombre}</h3>
               <p class="text-gray-600 text-sm mb-4 text-center">${receta.descripcion}</p>
               <div class="flex items-center justify-center">
-                <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                  Ver Receta
-                </button>
               </div>
             </div>
           </div>
-        `;
-        
+          </a>
+        `;      
         lista.appendChild(li);
       });
     })
