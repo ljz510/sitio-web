@@ -1,0 +1,22 @@
+meta {
+  name: Put Receta
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/recetas
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "nombre": "ravioles",
+    "descripcion": "Ravioles con Salsa golf",
+    "tiempo_preparacion": 15,
+    "porciones": 2,
+    "dificultad": "Fácil",
+    "imagen": "ravioles.jpg"
+  }
+}

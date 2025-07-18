@@ -1,5 +1,7 @@
 const { Pool } = require('pg');
 const {getIngredientesByReceta} = require("./ingredientes")
+const {getPasosByReceta} = require("./pasos")
+
 const dbClient = new Pool({
   user: 'postgres',
   port: 5432,
@@ -28,13 +30,51 @@ const getOneReceta = async (id) => {
   // Llamamos a la función importada
   const ingredientes = await getIngredientesByReceta(id);
   receta.ingredientes = ingredientes;
+  
+  const pasos = await getPasosByReceta(id);
+  receta.pasos = pasos
 
   return receta;
 };
 
+async function createReceta({ nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen }) {
+    let result;
+    try {
+        if (imagen != undefined) {
+            result = await dbClient.query(
+                "INSERT INTO receta (nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+                [nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen]
+            );
+        } else {
+            result = await dbClient.query(
+                "INSERT INTO receta (nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen) VALUES ($1, $2, $3, $4, $5, NULL) RETURNING *",
+                [nombre, descripcion, tiempo_preparacion, porciones, dificultad]
+            );
+        }
+        return result.rows[0];
+    } catch (error) {
+        console.error("Error al crear receta:", error); // Agregá esto para ayudarte a debuggear
+        return undefined;
+    }
+}
+
+// Funcion para verificar receta a partir del nombre asi puedo terminar de hacer el post
+// src/scripts/recetas.js
+async function getRecetaPorNombre(nombre) {
+  const result = await dbClient.query(
+    "SELECT * FROM receta WHERE nombre = $1",
+    [ nombre ]
+  );
+  return result.rows[0];  // devuelve undefined si no existe
+}
+
+
+
+
+
   
 // Función para eliminar una receta
-  const deleteReceta = async (id) => {
+const deleteReceta = async (id) => {
     const result = await dbClient.query('DELETE FROM receta WHERE id = $1', [id]);
   
     if (result.rowCount === 0) {
@@ -49,5 +89,7 @@ const getOneReceta = async (id) => {
 module.exports = {
   getAllRecetas,
   getOneReceta,
+  createReceta,
+  getRecetaPorNombre,
   deleteReceta
 };

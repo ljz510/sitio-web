@@ -9,7 +9,7 @@ const dbClient = new Pool({
 });
 
 
-// Función para obtener una receta
+// Función para los ingredientes de una receta
 const getIngredientesByReceta= async (id) => {
     const ingredientesQuery = `
     SELECT i.nombre, i.tipo, i.calorias, i.descripcion, ipr.cantidad, ipr.unidad
