@@ -30,15 +30,8 @@ app.post("/api/recetas", async (req, res) => {
         tiempo_preparacion,
         porciones,
         dificultad,
-        imagen = null } = req.body;
+        imagen } = req.body;
 
-    
-    console.log(nombre,
-        descripcion,
-        tiempo_preparacion,
-        porciones,
-        dificultad,
-        imagen);
     // Errores principales
     if (!req.body) {
         return res.status(400).send("No se recibió ningún parámetro");
@@ -87,15 +80,19 @@ app.post("/api/recetas", async (req, res) => {
 
 
 // Delete
-app.delete('/api/recetas/:id', async (req, res) => {
-      const recetaEliminada = await deleteReceta(req.params.id);
-      res.json({ mensaje: 'Receta eliminada', receta: recetaEliminada });
-      if(!recetaEliminada){
-        return res.status(404).json({error : " Receta id: " + req.params.id + " not found"})
-      }
-      res.json({status: 'OK', id: recetaEliminada})
- 
+app.delete("/api/recetas/:id", async (req, res) => {
+  try {
+    const recetaEliminada = await deleteReceta(req.params.id);
+    if (!recetaEliminada) {
+      return res.status(404).json({ error: "Receta id: ${req.params.id} no encontrada" });
+    }
+    res.json({ mensaje: "Receta eliminada", id: recetaEliminada });
+  } catch (error) {
+    console.error("Error en DELETE", error);
+    res.sendStatus(500);
+  }
 });
+
 
 
 

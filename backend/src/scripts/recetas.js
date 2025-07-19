@@ -68,11 +68,6 @@ async function getRecetaPorNombre(nombre) {
   return result.rows[0];  // devuelve undefined si no existe
 }
 
-
-
-
-
-  
 // Función para eliminar una receta
 const deleteReceta = async (id) => {
     const result = await dbClient.query('DELETE FROM receta WHERE id = $1', [id]);
@@ -83,7 +78,7 @@ const deleteReceta = async (id) => {
   
     return id; 
   };
-  
+
 
 // Exportar el pool y funciones
 module.exports = {
