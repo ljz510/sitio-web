@@ -1,6 +1,7 @@
+const API_URL = 'http://localhost:3000/api/recetas/'
+
 function mostrarRecetas() {
-  const url = 'http://localhost:3000/api/recetas/';
-  fetch(url)
+  fetch(API_URL)
     .then(res => res.json())
     .then(data => {
       const lista = document.getElementById('lista-recetas');
@@ -40,3 +41,85 @@ function mostrarRecetas() {
 }
 
 mostrarRecetas();
+
+/*
+CÓDIGO PARA SECCIÓN AGREGAR_RECETAS
+*/ 
+
+
+const form = document.getElementById("form");
+const nombre = document.getElementById("nombre");
+const descripcion = document.getElementById("descripcion");
+const dificultad = document.getElementById("dificultad");
+const porciones = document.getElementById("porciones");
+const tiempo = document.getElementById("tiempo");
+const ingredientes = document.getElementById("ingredientes");
+const instrucciones = document.getElementById("instrucciones");
+const imagen = document.getElementById("imagen");
+
+const mensaje = document.getElementById("mensaje");
+
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  formValidation();
+});
+
+function formValidation() {
+  if (
+    nombre.value.trim() === "" ||
+    descripcion.value.trim() === "" ||
+    dificultad.value.trim() === "" ||
+    porciones.value.trim() === "" ||
+    tiempo.value.trim() === "" ||
+    ingredientes.value.trim() === "" ||
+    instrucciones.value.trim() === ""
+  ) {
+    mensaje.innerText = "Todos los campos son obligatorios.";
+    mensaje.style.color = "red";
+    return;
+  }
+
+  createPost();
+}
+
+async function createPost() {
+  const formData = new FormData();
+  formData.append("nombre", nombre.value);
+  formData.append("descripcion", descripcion.value);
+  formData.append("dificultad", dificultad.value);
+  formData.append("porciones", porciones.value);
+  formData.append("tiempo_preparacion", tiempo.value);
+  formData.append("ingredientes", ingredientes.value);
+  formData.append("instrucciones", instrucciones.value);
+  if (imagen.files.length > 0) {
+    formData.append("imagen", imagen.files[0]);
+  }
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.status !== 201) {
+      const txt = await res.text();
+      throw new Error(txt || "Error al crear receta");
+    }
+
+    const receta = await res.json();
+
+    // mensaje de receta creada
+    mensaje.innerText = "Receta creada correctamente.";
+    mensaje.style.color = "green";
+
+    // limpieza de formulario
+    form.reset();
+
+    
+  } catch (error) {
+    console.error("Error al crear receta:", error);
+    mensaje.innerText = "Error: " + error.message;
+    mensaje.style.color = "red";
+  }
+}
