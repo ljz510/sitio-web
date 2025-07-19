@@ -80,11 +80,25 @@ const deleteReceta = async (id) => {
   };
 
 
+// Función para actualizar una receta
+async function updateReceta(id, nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen) {
+  await dbClient.query(
+    "UPDATE receta SET nombre = $2, descripcion = $3, tiempo_preparacion = $4, porciones = $5, dificultad = $6, imagen = $7 WHERE id = $1",
+    [ id, nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen ]
+  );
+  return {id, nombre, descripcion,
+    tiempo_preparacion, porciones, dificultad,
+    imagen};
+}
+
+
+
 // Exportar el pool y funciones
 module.exports = {
   getAllRecetas,
   getOneReceta,
   createReceta,
   getRecetaPorNombre,
-  deleteReceta
+  deleteReceta,
+  updateReceta
 };

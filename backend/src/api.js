@@ -5,7 +5,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre} = require('./scripts/recetas.js')
+const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta} = require('./scripts/recetas.js')
 app.get('/api/health', (req,res) => {
     res.json({ status: 'OK' });
 });
@@ -93,8 +93,42 @@ app.delete("/api/recetas/:id", async (req, res) => {
   }
 });
 
+// Put
+app.put("/api/recetas/:id", async (req, res) => {
+    let receta = await getOneReceta[req.params.id];
 
+    if (!req.body) {
+        return res.status(400).send("No se recibió ningún parámetro");
+    }
 
+    const nombre = req.body.nombre
+    const descripcion = req.body.descripcion
+    const tiempo_preparacion = req.body.tiempo_preparacion
+    const porciones = req.body.porciones
+    const dificultad = req.body.dificultad
+    const imagen = req.body.imagen
+
+    // Errores principales
+    
+    if (!nombre) {
+        return res.status(400).send("No se recibió un 'Nombre'");
+    }
+    if (!descripcion) {
+        return res.status(400).send("No se recibió una 'Descripción'");
+    }
+    if (!tiempo_preparacion) {
+        return res.status(400).send("No se recibió un 'Tiempo'");
+    }
+    if (!porciones) {
+        return res.status(400).send("No se recibieron las 'Porciones'");
+    }
+    if (!dificultad) {
+        return res.status(400).send("No se recibió la 'Dificultad'");
+    }
+    
+    receta = await updateReceta(req.params.id, nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen);
+    res.json(receta);
+});
 
 app.listen(PORT, () => {
     console.log("Server Listening on PORT:",PORT)
