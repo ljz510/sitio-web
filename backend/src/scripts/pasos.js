@@ -8,8 +8,6 @@ const dbClient = new Pool({
   password: 'postgres',
 });
 
-
-// Función para obtener los pasos de una receta
 const getPasosByReceta= async (id) => {
     const pasosQuery = `
     SELECT p.receta_entera, p.cantidad_pasos, p.dificultad, p.tiempo_estimado, p.apto_para
@@ -19,8 +17,6 @@ const getPasosByReceta= async (id) => {
   const pasosResult = await dbClient.query(pasosQuery, [id]);
   return pasosResult.rows;
 };
-
-  
 
 // Exportar el pool y funciones
 module.exports = {

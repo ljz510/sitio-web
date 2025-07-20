@@ -29,9 +29,8 @@ const getOneReceta = async (id) => {
 
   // Llamamos a la función importada
   const ingredientes = await getIngredientesByReceta(id);
-  receta.ingredientes = ingredientes;
-  
   const pasos = await getPasosByReceta(id);
+  receta.ingredientes = ingredientes;
   receta.pasos = pasos
 
   return receta;
