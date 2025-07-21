@@ -1,39 +1,59 @@
+//Imports
 const express = require('express');
 var cors = require('cors');
+const path = require('path');
+const multer = require('multer');
 
+//Asignaciones para que se forme la App
 const app = express();
 app.use(express.json());
 app.use(cors())
-app.use('/images', express.static('public/images'));
+app.use('/images', express.static(path.join(__dirname, '..','public','images')));
 
+// Define carpeta de destino y nombre de archivo
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/images');
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const fileName = Date.now() + ext;
+    cb(null, fileName);
+  }
+});
+
+const upload = multer({ storage });
+
+//Puerto donde Trabaja
 const PORT = process.env.PORT || 3000;
 
+//Import funciones
 const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta} = require('./scripts/recetas.js')
+
+//Endpoints
+
+//* Health
 app.get('/api/health', (req,res) => {
     res.json({ status: 'OK' });
 });
 
-// Get All
+//* Get All
 app.get('/api/recetas', async (req, res)=>{
     const recetas = await getAllRecetas();
     res.json(recetas);
 })
 
-// Get One
+//* Get One
 app.get('/api/recetas/:id', async (req, res)=>{
     const receta = await getOneReceta(req.params.id);
     res.json(receta);
 })
 
-//Post
-app.post("/api/recetas", async (req, res) => {
-    const {
-        nombre,
-        descripcion,
-        tiempo_preparacion,
-        porciones,
-        dificultad,
-        imagen } = req.body;
+//* Post
+app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
+    const { nombre, descripcion, tiempo_preparacion, porciones, dificultad } = req.body;
+
+    const imagen = req.file ? req.file.filename: null;
 
     // Errores principales
     if (!req.body) {
@@ -62,7 +82,7 @@ app.post("/api/recetas", async (req, res) => {
         return res.status(409).send("La receta ya existe");
     }
 
-    // Crear receta
+    // Crear receta 
     const nuevaReceta = {
         nombre,
         descripcion,
@@ -78,11 +98,11 @@ app.post("/api/recetas", async (req, res) => {
         return res.sendStatus(500);
     }
 
-    res.status(201).json({ id, ...nuevaReceta });
+    res.status(201).json({ id });
 });
 
 
-// Delete
+//* Delete
 app.delete("/api/recetas/:id", async (req, res) => {
   try {
     const recetaEliminada = await deleteReceta(req.params.id);
@@ -96,7 +116,7 @@ app.delete("/api/recetas/:id", async (req, res) => {
   }
 });
 
-// Put
+//* Put
 app.put("/api/recetas/:id", async (req, res) => {
     let receta = await getOneReceta[req.params.id];
 
@@ -133,6 +153,7 @@ app.put("/api/recetas/:id", async (req, res) => {
     res.json(receta);
 });
 
+// Mensaje al abrir Backend
 app.listen(PORT, () => {
     console.log("Server Listening on PORT:",PORT)
 })

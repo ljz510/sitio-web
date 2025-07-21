@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api/recetas/'
+const API_URL = 'http://localhost:3000/api/recetas'
 
 function mostrarRecetas() {
   fetch(API_URL)
@@ -11,7 +11,7 @@ function mostrarRecetas() {
         const li = document.createElement('li');
         li.className = 'flex justify-center';
         li.innerHTML = `
-        <a href="detalle_receta.html?id=${receta.id}" 
+        <a href="detalle_receta.html?id=${receta.id}">
                 <div class="w-64 bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
             <div >
               <img src="http://localhost:3000/images/${receta.imagen}"
@@ -123,3 +123,4 @@ async function createPost() {
     mensaje.style.color = "red";
   }
 }
+
