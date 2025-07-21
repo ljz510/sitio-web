@@ -27,6 +27,17 @@ CREATE TABLE Pasos (
     apto_para VARCHAR(100) NOT NULL
 );
 
+-- Nueva tabla para utensilios de cocina
+CREATE TABLE Utensilio (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,              -- Nombre del utensilio (ej: Sartén)
+    material VARCHAR(50) NOT NULL,             -- Material principal (ej: Acero, Silicona)
+    tipo VARCHAR(50) NOT NULL,                 -- Tipo (ej: Eléctrico, Manual)
+    usos TEXT NOT NULL,                        -- Breve descripción de usos (ej: Para freír, batir, etc.)
+    apto_lavavajillas BOOLEAN DEFAULT true     -- Si puede meterse al lavavajillas o no
+);
+
+
 CREATE TABLE IngPorReceta (
     id SERIAL PRIMARY KEY,
     receta_id INT REFERENCES Receta(id) ON DELETE CASCADE,--Al borrar una receta, se borran automáticamente sus pasos e ingredientes.
