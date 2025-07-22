@@ -29,6 +29,7 @@ const PORT = process.env.PORT || 3000;
 
 //Import funciones
 const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta} = require('./scripts/recetas.js')
+const {getIngredientesByReceta, getAllIngredientes, createIngrediente, updateIngrediente, deleteIngrediente} = require('./scripts/ingredientes.js');
 
 //Endpoints
 
@@ -152,6 +153,61 @@ app.put("/api/recetas/:id", async (req, res) => {
     receta = await updateReceta(req.params.id, nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen);
     res.json(receta);
 });
+// rutas crud para ingredientes
+
+// Obtener todos los ingredientes
+app.get('/api/ingredientes', async (req, res) => {
+  try {
+    const ingredientes = await getAllIngredientes();
+    res.json(ingredientes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obtener ingredientes por receta
+app.get('/api/recetas/:id/ingredientes', async (req, res) => {
+  try {
+    const ingredientes = await getIngredientesByReceta(req.params.id);
+    res.json(ingredientes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Crear un nuevo ingrediente
+app.post('/api/ingredientes', async (req, res) => {
+  try {
+    const nuevo = await createIngrediente(req.body);
+    res.status(201).json(nuevo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Actualizar ingrediente
+app.put('/api/ingredientes/:id', async (req, res) => {
+  try {
+    const actualizado = await updateIngrediente(req.params.id, req.body);
+    res.json(actualizado);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+// Eliminar ingrediente
+app.delete('/api/ingredientes/:id', async (req, res) => {
+  try {
+    const eliminado = await deleteIngrediente(req.params.id);
+    res.json({ id: eliminado });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+
+
+
 
 // Mensaje al abrir Backend
 app.listen(PORT, () => {
