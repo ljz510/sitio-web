@@ -132,3 +132,28 @@ async function createPost() {
     mensaje.style.color = "red";
   }
 }
+
+/*
+CÓDIGO PARA SECCIÓN BORRAR RECETA
+*/ 
+
+function borrarReceta(id) {
+  if (confirm("¿Seguro que querés borrar la receta?")) {
+    fetch(`http://localhost:3000/api/recetas/${id}`, { method: "DELETE" })
+      .then(() => window.location.href = "ver_recetas.html");
+  }
+}
+
+function borrarIngrediente(id) {
+  if (confirm("¿Eliminar ingrediente?")) {
+    fetch(`http://localhost:3000/api/ingredientes/${id}`, { method: "DELETE" })
+      .then(() => location.reload());
+  }
+}
+
+function borrarUtensilio(id) {
+  if (confirm("¿Eliminar utensilio?")) {
+    fetch(`http://localhost:3000/api/utensilios/${id}`, { method: "DELETE" })
+      .then(() => location.reload());
+  }
+}

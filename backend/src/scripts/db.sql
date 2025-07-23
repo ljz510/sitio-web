@@ -39,7 +39,7 @@ CREATE TABLE Utensilio (
 );
 
 CREATE TABLE UtenPorReceta (
-    receta_id INT REFERENCES Receta(id) ON DELETE CASCADE,--Al borrar una receta, se borran automáticamente sus pasos e ingredientes.
+    receta_id INT REFERENCES Receta(id) ON DELETE CASCADE,
     utensilio_id INT REFERENCES Utensilio(id));
 
 CREATE TABLE IngPorReceta (
