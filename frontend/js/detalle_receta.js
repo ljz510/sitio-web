@@ -79,9 +79,6 @@ function detalleReceta() {
                       <div class="font-bold text-primary-blue">${
                         ingrediente.cantidad
                       } ${ingrediente.unidad}</div>
-                      <div class="text-sm text-orange-600 font-medium">${
-                        ingrediente.calorias
-                      } cal</div>
                     </div>
                   </div>
                 `

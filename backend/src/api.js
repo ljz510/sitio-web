@@ -28,7 +28,8 @@ const upload = multer({ storage });
 const PORT = process.env.PORT || 3000;
 
 //Import funciones
-const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta} = require('./scripts/recetas.js')
+const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta, createPasos} = require('./scripts/recetas.js')
+const { findOrCreateIngrediente, createIngPorReceta } = require('./scripts/ingredientes.js');
 
 //Endpoints
 
@@ -51,8 +52,12 @@ app.get('/api/recetas/:id', async (req, res)=>{
 
 //* Post
 app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
-    const { nombre, descripcion, tiempo_preparacion, porciones, dificultad } = req.body;
-
+    const { 
+        nombre, descripcion, porciones, tiempo_preparacion, dificultad,
+        receta_entera, cantidad_pasos, apto_para,
+        ingredientes
+    } = req.body;
+    
     const imagen = req.file ? req.file.filename: null;
 
     // Errores principales
@@ -82,23 +87,60 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
         return res.status(409).send("La receta ya existe");
     }
 
-    // Crear receta 
-    const nuevaReceta = {
+    const recetaData = {
         nombre,
         descripcion,
-        tiempo_preparacion,
-        porciones,
+        tiempo_preparacion: parseInt(tiempo_preparacion),
+        porciones: parseInt(porciones),
         dificultad,
         imagen
     };
 
-    const id = await createReceta(nuevaReceta);
 
-    if (!id) {
-        return res.sendStatus(500);
+    const nuevaReceta = await createReceta(recetaData);
+
+     const pasosData = {
+        receta_id: nuevaReceta.id,
+        cantidad_pasos: parseInt(cantidad_pasos),
+        receta_entera,
+        apto_para: apto_para || 'general'
+    };
+
+    const nuevosPasos = await createPasos(pasosData);
+    if (!nuevosPasos) {
+        return res.status(500).json({ error: "Error al crear los pasos" });
     }
 
-    res.status(201).json({ id });
+    if (ingredientes) {
+        const ingredientesArray = JSON.parse(ingredientes);
+        
+        for (const ing of ingredientesArray) {
+            if (!ing.nombre || !ing.cantidad || !ing.unidad) {
+                continue; 
+            }
+
+            const ingrediente = await findOrCreateIngrediente({
+                nombre: ing.nombre.trim(),
+                descripcion: `Ingrediente usado en: ${nombre}`
+            });
+
+            if (ingrediente) {
+                // Crear la relación
+                await createIngPorReceta({
+                    receta_id: nuevaReceta.id,
+                    ingrediente_id: ingrediente.id,
+                    cantidad: parseFloat(ing.cantidad),
+                    unidad: ing.unidad.trim()
+                });
+            }
+        }
+    }
+
+    res.status(201).json({
+        message: "Receta creada exitosamente",
+        receta: nuevaReceta,
+        pasos: nuevosPasos
+    });
 });
 
 

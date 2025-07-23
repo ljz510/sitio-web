@@ -19,7 +19,7 @@ function mostrarRecetas() {
                    class="w-full h-48 object-cover" />
               <div class="absolute top-3 right-3">
                 <span class="bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs font-medium">
-                  ⏱️ 25 min
+                  ⏱️ ${receta.tiempo_preparacion}
                 </span>
               </div>
             </div>
@@ -53,9 +53,12 @@ const descripcion = document.getElementById("descripcion");
 const dificultad = document.getElementById("dificultad");
 const porciones = document.getElementById("porciones");
 const tiempo = document.getElementById("tiempo");
-const ingredientes = document.getElementById("ingredientes");
-const instrucciones = document.getElementById("instrucciones");
+const ingredientesJson = document.getElementById("ingredientes-json");
 const imagen = document.getElementById("imagen");
+
+const receta_entera = document.getElementById("receta_entera");
+const cantidad_pasos = document.getElementById("cantidad_pasos");
+const apto_para = document.getElementById("apto_para");
 
 const mensaje = document.getElementById("mensaje");
 
@@ -72,8 +75,7 @@ function formValidation() {
     dificultad.value.trim() === "" ||
     porciones.value.trim() === "" ||
     tiempo.value.trim() === "" ||
-    ingredientes.value.trim() === "" ||
-    instrucciones.value.trim() === ""
+    ingredientesJson.value.trim() === ""
   ) {
     mensaje.innerText = "Todos los campos son obligatorios.";
     mensaje.style.color = "red";
@@ -90,8 +92,12 @@ async function createPost() {
   formData.append("dificultad", dificultad.value);
   formData.append("porciones", porciones.value);
   formData.append("tiempo_preparacion", tiempo.value);
-  formData.append("ingredientes", ingredientes.value);
-  formData.append("instrucciones", instrucciones.value);
+  formData.append("ingredientes", ingredientesJson.value);
+
+  formData.append("receta_entera", receta_entera.value);
+  formData.append("cantidad_pasos", cantidad_pasos.value);
+  formData.append("apto_para", apto_para.value);
+
   if (imagen.files.length > 0) {
     formData.append("imagen", imagen.files[0]);
   }
@@ -118,7 +124,7 @@ async function createPost() {
 
     
   } catch (error) {
-    console.error("Error al crear receta:", error);
+console.error("Error al crear receta:", error);
     mensaje.innerText = "Error: " + error.message;
     mensaje.style.color = "red";
   }

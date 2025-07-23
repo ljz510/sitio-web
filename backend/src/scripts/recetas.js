@@ -57,6 +57,19 @@ async function createReceta({ nombre, descripcion, tiempo_preparacion, porciones
     }
 }
 
+async function createPasos({ receta_id, cantidad_pasos, dificultad = "x", tiempo_estimado = 0, receta_entera, apto_para }) {
+  try {
+    const result = await dbClient.query(
+      "INSERT INTO pasos (receta_id, cantidad_pasos, dificultad, tiempo_estimado, receta_entera, apto_para) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [receta_id, cantidad_pasos, dificultad, tiempo_estimado, receta_entera, apto_para]
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.error("Error al crear pasos:", error);
+    return undefined;
+  }
+}
+
 // Funcion para verificar receta a partir del nombre asi puedo terminar de hacer el post
 // src/scripts/recetas.js
 async function getRecetaPorNombre(nombre) {
@@ -99,5 +112,6 @@ module.exports = {
   createReceta,
   getRecetaPorNombre,
   deleteReceta,
-  updateReceta
+  updateReceta,
+  createPasos
 };
