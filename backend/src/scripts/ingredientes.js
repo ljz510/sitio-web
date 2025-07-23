@@ -9,6 +9,8 @@ const dbClient = new Pool({
 });
 
 
+// ------------------------------- GET -------------------------------
+
 // Función para los ingredientes de una receta
 const getIngredientesByReceta= async (id) => {
     const ingredientesQuery = `
@@ -21,11 +23,17 @@ const getIngredientesByReceta= async (id) => {
   return ingredientesResult.rows;
 };
 
+
+
 // Función para obtener todos los ingredientes
 const getAllIngredientes = async () => {
   const result = await dbClient.query('SELECT * FROM ingrediente');
   return result.rows;
 }; 
+
+
+// ------------------------------- POST -------------------------------
+
 // Función para crear un ingrediente
 const createIngrediente = async ({ nombre, tipo, calorias, descripcion, origen }) => {
   const result = await dbClient.query(
@@ -34,6 +42,9 @@ const createIngrediente = async ({ nombre, tipo, calorias, descripcion, origen }
   );
   return result.rows[0];
 };
+
+
+// ------------------------------- PUT -------------------------------
 
 // Funcion para editar un ingrediente
 const updateIngrediente = async (id, { nombre, tipo, calorias, descripcion, origen }) => {
@@ -47,6 +58,9 @@ const updateIngrediente = async (id, { nombre, tipo, calorias, descripcion, orig
   return result.rows[0];
 };
 
+
+// ------------------------------- DELETE -------------------------------
+
 // Funcion para eliminar un ingrediente
 const deleteIngrediente = async (id) => {
   const query = 'DELETE FROM ingrediente WHERE id = $1 RETURNING id';
@@ -56,6 +70,7 @@ const deleteIngrediente = async (id) => {
   }
   return result.rows[0].id;
 };
+
 
 // Exportar el pool y funciones
 module.exports = {

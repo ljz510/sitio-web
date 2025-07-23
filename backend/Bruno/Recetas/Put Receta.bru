@@ -1,0 +1,26 @@
+meta {
+  name: Put Receta
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:3000/api/recetas/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+body:json {
+  {
+      "nombre": "Ensalada fresca",
+      "descripcion": "Mix de lechuga, rúcula y tomates cherry con oliva.",
+      "tiempo_preparacion": 10,
+      "porciones": 2,
+      "dificultad": "Fácil",
+      "imagen": "ensalada.jpg"
+  }
+}

@@ -38,12 +38,10 @@ CREATE TABLE Utensilio (
     apto_lavavajillas BOOLEAN DEFAULT true     -- Si puede meterse al lavavajillas o no
 );
 
-CREATE TABLE RecetaUtensilio (
-    id SERIAL PRIMARY KEY,
-    receta_id INT REFERENCES Receta(id) ON DELETE CASCADE, -- Al borrar una receta, se borran automáticamente sus utensilios
-    utensilio_id INT REFERENCES Utensilio(id),
-    cantidad INT, -- Cantidad de utensilios necesarios (ej: 1 sartén)
-);
+CREATE TABLE UtenPorReceta (
+    receta_id INT REFERENCES Receta(id) ON DELETE CASCADE,--Al borrar una receta, se borran automáticamente sus pasos e ingredientes.
+    utensilio_id INT REFERENCES Utensilios(id));
+
 CREATE TABLE IngPorReceta (
     id SERIAL PRIMARY KEY,
     receta_id INT REFERENCES Receta(id) ON DELETE CASCADE,--Al borrar una receta, se borran automáticamente sus pasos e ingredientes.

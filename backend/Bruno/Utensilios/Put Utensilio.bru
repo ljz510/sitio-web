@@ -1,0 +1,25 @@
+meta {
+  name: Put Utensilio
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:3000/api/utensilios/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+body:json {
+  {
+      "nombre": "Cuchara de metal",
+      "material": "Metal",
+      "tipo": "Manual",
+      "usos": "Para revolver mezclas",
+      "apto_lavavajillas": true
+  }
+}
