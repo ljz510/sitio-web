@@ -71,7 +71,7 @@ const deleteIngrediente = async (id) => {
   return result.rows[0].id;
 };
 
-async function findOrCreateIngrediente({ nombre, tipo = 'general', calorias = 0, descripcion }) {
+async function findOrCreateIngrediente({ nombre, tipo = 'general', calorias = 0, descripcion, origen= 'Nacional' }) {
   try {
       let result = await dbClient.query(
           "SELECT * FROM ingrediente WHERE LOWER(nombre) = LOWER($1)",
@@ -84,8 +84,8 @@ async function findOrCreateIngrediente({ nombre, tipo = 'general', calorias = 0,
       
       // Si no existe, crearlo
       result = await dbClient.query(
-          "INSERT INTO ingrediente (nombre, tipo, calorias, descripcion) VALUES ($1, $2, $3, $4) RETURNING *",
-          [nombre, tipo, calorias, descripcion || `Ingrediente: ${nombre}`]
+          "INSERT INTO ingrediente (nombre, tipo, calorias, descripcion, origen) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+          [nombre, tipo, calorias, descripcion, origen || `Ingrediente: ${nombre}`]
       );
       return result.rows[0];
   } catch (error) {

@@ -56,14 +56,26 @@ const getUtensilioPorNombre = async (nombre) => {
 // ------------------------------- POST -------------------------------
 
 // Función para crear un utensilio
-const createUtensilio = async ({ nombre, material, tipo, usos, apto_lavavajillas }) => {
+const createUtensilio = async ({ nombre, material = "Desconocido", tipo, usos, apto_lavavajillas=false }) => {
   const result = await dbClient.query(
-    "INSERT INTO utensilios (nombre, material, tipo, usos, apto_lavavajillas) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+    "INSERT INTO Utensilio (nombre, material, tipo, usos, apto_lavavajillas) VALUES ($1, $2, $3, $4, $5) RETURNING *",
     [nombre, material, tipo, usos, apto_lavavajillas]
   );
   return result.rows[0];
 };
 
+async function createUtensilioPorReceta({ receta_id, utensilio_id }) {
+  try {
+      const result = await dbClient.query(
+          "INSERT INTO UtenPorReceta (receta_id, utensilio_id) VALUES ($1, $2) RETURNING *",
+          [receta_id, utensilio_id]
+      );
+      return result.rows[0];
+  } catch (error) {
+      console.error("Error al crear utensilio por receta:", error);
+      return undefined;
+  }
+}
 
 // ------------------------------- PUT -------------------------------
 
@@ -99,5 +111,6 @@ module.exports = {
   getUtensilioByReceta,
   createUtensilio,
   deleteUtensilio,
-  updateUtensilio
+  updateUtensilio,
+  createUtensilioPorReceta
 };

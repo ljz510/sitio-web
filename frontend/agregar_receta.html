@@ -71,7 +71,68 @@
         <input type="text" class="form-control" id="apto_para" name="apto_para" placeholder="Veganos, Celiacos , General" value="">
       </div>
     </div>
+<!-- -----------------------------Utensilios------------------------------------ -->
+<div id="utensilios-container" class="mb-3">
+  <label class="form-label">Utensilios:</label>
+  
+  <div id="utensilios-list"></div>
 
+  <button type="button" class="btn btn-secondary mt-2" onclick="agregarUtensilios()">Agregar Utensilios</button>
+</div>
+<input type="hidden" name="utensilios" id="utensilios-json" />
+<script>
+  let utensilios = [];
+  
+  function agregarUtensilios(nombre = '', tipo = '', usos = '') {
+    const index = utensilios.length;
+  
+    const container = document.createElement('div');
+    container.className = 'mb-2 row align-items-end';
+    container.innerHTML = `
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Nombre" onchange="actualizarUtensilios(${index}, 'nombre', this.value)" value="${nombre}">
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" placeholder="tipo" onchange="actualizarUtensilios(${index}, 'tipo', this.value)" value="${tipo}">
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" placeholder="usos" onchange="actualizarUtensilios(${index}, 'usos', this.value)" value="${usos}">
+      </div>
+      <div class="col-auto">
+        <button type="button" class="btn btn-danger" onclick="eliminarUtensilios(${index})">X</button>
+      </div>
+    `;
+  
+    document.getElementById('utensilios-list').appendChild(container);
+  
+    utensilios.push({ nombre, tipo, usos });
+    actualizarCampoOcultoUten();
+  }
+  
+  function actualizarUtensilios(index, campo, valor) {
+    utensilios[index][campo] = valor;
+    actualizarCampoOcultoUten();
+  }
+  
+  function eliminarUtensilios(index) {
+    utensilios.splice(index, 1);
+    renderizarUtensilios();
+    actualizarCampoOcultoUten();
+  }
+  
+  function renderizarUtensilios() {
+    document.getElementById('utensilios-list').innerHTML = '';
+    const copia = [...utensilios];
+    utensilios = [];
+    copia.forEach(i => agregarUtensilios(i.nombre, i.tipo, i.usos));
+  }
+  
+  function actualizarCampoOcultoUten() {
+    document.getElementById('utensilios-json').value = JSON.stringify(utensilios);
+  }
+  </script>
+  
+<!-- -------------------------------Ingredientes-------------------------------------------- -->
     <div id="ingredientes-container" class="mb-3">
       <label class="form-label">Ingredientes:</label>
       
@@ -109,18 +170,18 @@
         document.getElementById('ingredientes-list').appendChild(container);
       
         ingredientes.push({ nombre, cantidad, unidad });
-        actualizarCampoOculto();
+        actualizarCampoOcultoIng();
       }
       
       function actualizarIngrediente(index, campo, valor) {
         ingredientes[index][campo] = valor;
-        actualizarCampoOculto();
+        actualizarCampoOcultoIng();
       }
       
       function eliminarIngrediente(index) {
         ingredientes.splice(index, 1);
         renderizarIngredientes();
-        actualizarCampoOculto();
+        actualizarCampoOcultoIng();
       }
       
       function renderizarIngredientes() {
@@ -130,7 +191,7 @@
         copia.forEach(i => agregarIngrediente(i.nombre, i.cantidad, i.unidad));
       }
       
-      function actualizarCampoOculto() {
+      function actualizarCampoOcultoIng() {
         document.getElementById('ingredientes-json').value = JSON.stringify(ingredientes);
       }
       </script>

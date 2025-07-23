@@ -32,7 +32,7 @@ const PORT = process.env.PORT || 3000;
 // const { findOrCreateIngrediente, createIngPorReceta } = require('./scripts/ingredientes.js');
 const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta, createPasos} = require('./scripts/recetas.js')
 const {getIngredientesByReceta, getAllIngredientes, createIngrediente, updateIngrediente, deleteIngrediente, findOrCreateIngrediente, createIngPorReceta} = require('./scripts/ingredientes.js');
-const { getAllUtensilios, getOneUtensilio, getUtensilioPorNombre, getUtensilioByReceta, createUtensilio, updateUtensilio, deleteUtensilio} = require('./scripts/utensilios.js');
+const { getAllUtensilios, getOneUtensilio, getUtensilioPorNombre, getUtensilioByReceta, createUtensilio, updateUtensilio, deleteUtensilio, createUtensilioPorReceta} = require('./scripts/utensilios.js');
 
 // Health
 app.get('/api/health', (req,res) => {
@@ -59,7 +59,7 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
     const { 
         nombre, descripcion, porciones, tiempo_preparacion, dificultad,
         receta_entera, cantidad_pasos, apto_para,
-        ingredientes
+        ingredientes, utensilios
     } = req.body;
     
     const imagen = req.file ? req.file.filename: null;
@@ -113,6 +113,26 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
     const nuevosPasos = await createPasos(pasosData);
     if (!nuevosPasos) {
         return res.status(500).json({ error: "Error al crear los pasos" });
+    }
+
+    if(utensilios){
+      const utensilioArray = JSON.parse(utensilios);
+      for (const u of utensilioArray) {
+     
+        const utensilios = await createUtensilio({
+           nombre: u.nombre.trim(),
+           tipo:u.tipo,
+           usos: u.usos,
+        });
+
+        if (utensilios) {
+            // Crear la relación
+            await createUtensilioPorReceta({
+                receta_id: nuevaReceta.id,
+                utensilio_id: utensilios.id,
+            });
+        }
+    }
     }
 
     if (ingredientes) {

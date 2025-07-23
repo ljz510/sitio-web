@@ -53,6 +53,7 @@ const descripcion = document.getElementById("descripcion");
 const dificultad = document.getElementById("dificultad");
 const porciones = document.getElementById("porciones");
 const tiempo = document.getElementById("tiempo");
+const utensiliosJson = document.getElementById("utensilios-json");
 const ingredientesJson = document.getElementById("ingredientes-json");
 const imagen = document.getElementById("imagen");
 
@@ -75,6 +76,7 @@ function formValidation() {
     dificultad.value.trim() === "" ||
     porciones.value.trim() === "" ||
     tiempo.value.trim() === "" ||
+    utensiliosJson.value.trim() === "" ||
     ingredientesJson.value.trim() === ""
   ) {
     mensaje.innerText = "Todos los campos son obligatorios.";
@@ -92,6 +94,7 @@ async function createPost() {
   formData.append("dificultad", dificultad.value);
   formData.append("porciones", porciones.value);
   formData.append("tiempo_preparacion", tiempo.value);
+  formData.append("utensilios", utensiliosJson.value);
   formData.append("ingredientes", ingredientesJson.value);
 
   formData.append("receta_entera", receta_entera.value);
@@ -124,7 +127,7 @@ async function createPost() {
 
     
   } catch (error) {
-console.error("Error al crear receta:", error);
+ console.error("Error al crear receta:", error);
     mensaje.innerText = "Error: " + error.message;
     mensaje.style.color = "red";
   }
