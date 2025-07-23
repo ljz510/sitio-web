@@ -14,7 +14,8 @@ CREATE TABLE Ingrediente (
     nombre VARCHAR(100) NOT NULL,
     tipo VARCHAR(100) NOT NULL,
     calorias INT,
-    descripcion VARCHAR(150) NOT NULL
+    descripcion VARCHAR(150) NOT NULL,
+    origen VARCHAR(100) NOT NULL -- Nuevo campo para origen del ingrediente
 );
 
 CREATE TABLE Pasos (
@@ -37,6 +38,9 @@ CREATE TABLE Utensilio (
     apto_lavavajillas BOOLEAN DEFAULT true     -- Si puede meterse al lavavajillas o no
 );
 
+CREATE TABLE UtenPorReceta (
+    receta_id INT REFERENCES Receta(id) ON DELETE CASCADE,--Al borrar una receta, se borran automáticamente sus pasos e ingredientes.
+    utensilio_id INT REFERENCES Utensilio(id));
 
 CREATE TABLE IngPorReceta (
     id SERIAL PRIMARY KEY,

@@ -10,6 +10,9 @@ const dbClient = new Pool({
   password: 'postgres',
 });
 
+
+// ------------------------------- GET -------------------------------
+
 // Función para obtener todas las recetas
 const getAllRecetas = async () => {
   const result = await dbClient.query('SELECT * FROM receta');
@@ -35,6 +38,19 @@ const getOneReceta = async (id) => {
 
   return receta;
 };
+
+// Funcion para verificar receta a partir del nombre asi puedo terminar de hacer el post
+// src/scripts/recetas.js
+async function getRecetaPorNombre(nombre) {
+    const result = await dbClient.query(
+      "SELECT * FROM receta WHERE nombre = $1",
+      [ nombre ]
+    );
+    return result.rows[0];  // devuelve undefined si no existe
+}
+
+
+// ------------------------------- POST -------------------------------
 
 async function createReceta({ nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen }) {
     let result;
@@ -80,6 +96,8 @@ async function getRecetaPorNombre(nombre) {
   return result.rows[0];  // devuelve undefined si no existe
 }
 
+// ------------------------------- DELETE -------------------------------
+
 // Función para eliminar una receta
 const deleteReceta = async (id) => {
     const result = await dbClient.query('DELETE FROM receta WHERE id = $1', [id]);
@@ -89,8 +107,10 @@ const deleteReceta = async (id) => {
     }
   
     return id; 
-  };
+};
 
+
+// ------------------------------- PUT -------------------------------
 
 // Función para actualizar una receta
 async function updateReceta(id, nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen) {

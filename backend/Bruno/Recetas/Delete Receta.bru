@@ -5,7 +5,11 @@ meta {
 }
 
 delete {
-  url: http:/localhost:3000/api/recetas/3
+  url: http://localhost:3000/api/recetas/:id
   body: none
   auth: inherit
+}
+
+params:path {
+  id: 9
 }
