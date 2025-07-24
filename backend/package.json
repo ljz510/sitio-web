@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "main": "api.js",
   "scripts": {
-    "dev": "nodemon src/api.js"
-  },
+  "start-db": "sudo docker-compose up -d",
+  "dev": "nodemon ./src/api.js",
+  "run-backend": "node ./src/api.js",
+  "start-all": "npm run start-db && npm run run-backend"
+},
+
   "author": "Santino_Bouza",
   "license": "ISC",
   "description": "",
