@@ -21,28 +21,42 @@ El siguiente proyecto conforma la fase final de la materia introducción al desa
 
 ---
 
-
----
-
 ## 🚀 Cómo levantar el sistema
-
-### Requisitos previos
-
-- Tener instalado:
-  - [Docker](https://www.docker.com/)
-  - [Docker Compose](https://docs.docker.com/compose/)
 
 ---
 
 ### 🔧 Configuración rápida
 
-1. Clonación del repositorio:
+## 1. Clonación del repositorio:
 
 ```bash
 git clone https://github.com/ljz510/sitio-web.git
 cd sitio-web
 ```
-### Levantar la BDD 
+
+## 2. Levantar la base de datos y el backend
 ```bash
-docker-compose up -d
+cd backend
+npm install
+npm run start-all
 ```
+Esto ejecuta, que esta definido en el Json:
+```bash
+docker-compose up -d: levanta PostgreSQL
+
+node ./src/api.js: corre el backend
+```
+también es posible correrlos por separado:
+```bash
+npm run start-db → luego npm run run-backend
+```
+
+## 3. Levantar el frontend
+En otra terminal:
+
+```bash
+cd <direccion_local_repo_front>
+npm install
+npm start
+```
+Esto lanza el servidor en http://localhost:8080
