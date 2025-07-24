@@ -14,7 +14,7 @@ const dbClient = new Pool({
 // Función para los ingredientes de una receta
 const getIngredientesByReceta= async (id) => {
     const ingredientesQuery = `
-    SELECT i.id, i.nombre, i.tipo, i.calorias, i.descripcion, ipr.cantidad, ipr.unidad
+    SELECT i.id, i.nombre, i.tipo, i.calorias, i.descripcion, ipr.cantidad, ipr.unidad, i.origen
     FROM ingrediente i
     JOIN ingporreceta ipr ON i.id = ipr.ingrediente_id
     WHERE ipr.receta_id = $1
