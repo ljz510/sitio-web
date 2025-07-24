@@ -1,5 +1,6 @@
 import { borrarReceta, borrarIngrediente, borrarUtensilio } from './delete_recetas.js';
-
+import {editarIngrediente} from './update_ingredientes.js'
+import { editarUtensilio } from './update_utensilios.js';
 function Receta() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
@@ -64,32 +65,38 @@ function Receta() {
                 ${receta.ingredientes
                   .map(
                     (ingrediente, index) => `
-                  <div class="flex justify-between items-center py-4 border-b border-gray-100 last:border-b-0 rounded-lg px-2">
-                    <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 bg-gradient-to-br from-orange-400 to-accent-red rounded-full flex items-center justify-center text-white text-sm font-bold">
-                        ${index + 1}
+                    <div class="flex justify-between items-center  border-b border-gray-100 last:border-b-0 rounded-lg">
+                      <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-orange-400 to-accent-red rounded-full flex items-center justify-center text-white text-sm font-bold">
+                          ${index + 1}
+                        </div>
+                        <div>
+                          <div class="font-semibold text-primary-blue">${ingrediente.nombre}</div>
+                          <div class="text-sm text-gray-600">${ingrediente.descripcion}</div>
+                        </div>
                       </div>
-                      <div>
-                        <div class="font-semibold text-primary-blue">${
-                          ingrediente.nombre
-                        }</div>
-                        <div class="text-sm text-gray-600">${
-                          ingrediente.descripcion
-                        }</div>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-3">
+                      
                       <div class="text-right">
-                        <div class="font-bold text-primary-blue">${
-                          ingrediente.cantidad
-                        } ${ingrediente.unidad}</div>
+                        <div class="flex justify-end gap-1 mb-2">
+                        <button data-id-ingrediente="${ingrediente.id}" 
+                        data-nombre="${ingrediente.nombre}" 
+                        data-descripcion="${ingrediente.descripcion}"
+                        data-cantidad="${ingrediente.cantidad}"
+                        data-unidad="${ingrediente.unidad}"
+
+                        class="btnEditarIngrediente w-5 h-5 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors">
+                          ✎
+                        </button>
+                          <button data-id-ingrediente="${ingrediente.id}" 
+                                  class="btnEliminarIngrediente w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors">
+                            ×
+                          </button>
+                        </div>
+                        <!-- Cantidad abajo -->
+                        <div class="font-bold text-primary-blue">${ingrediente.cantidad} ${ingrediente.unidad}</div>
                       </div>
-                      <button data-id-ingrediente="${ingrediente.id}" class="btnEliminarIngrediente w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors">
-                        ×
-                      </button>
                     </div>
-                  </div>
-                `
+                    `
                   )
                   .join("")}
               </div>
@@ -98,26 +105,35 @@ function Receta() {
 
         
           <div class="mb-8">
-            <h2 class="text-2xl font-bold mb-4 text-primary-blue relative">
-             Preparación
-            </h2>
-            <div class="bg-white p-8 rounded-2xl shadow-lg border border-orange-100 relative overflow-hidden">
-              <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -translate-y-8 translate-x-8 opacity-40"></div>
-              
-              <p class="text-gray-700 leading-relaxed text-lg relative z-10">${
-                receta.pasos[0].receta_entera
-              }</p>
-              
-              <div class="mt-6 flex gap-3 relative z-10">
-                <span class="bg-gradient-to-r from-orange-400 to-accent-red text-white px-4 py-2 rounded-full text-sm font-medium shadow-md">
-                 ${receta.pasos[0].apto_para}
-                </span>
-                <span class="bg-gradient-to-r from-primary-blue to-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md">
-                 ${receta.pasos[0].cantidad_pasos} pasos
-                </span>
-              </div>
+          <h2 class="text-2xl font-bold mb-4 text-primary-blue relative">
+            Preparación
+          </h2>
+          <div class="bg-white p-8 rounded-2xl shadow-lg border border-orange-100 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -translate-y-8 translate-x-8 opacity-40"></div>
+            
+            <p class="text-gray-700 leading-relaxed text-lg relative z-10">${
+              receta.pasos[0].receta_entera
+            }</p>
+            
+            <div class="mt-6 flex gap-3 relative z-10">
+              ${
+                receta.pasos[0].apto_para
+                  ? `<span class="bg-gradient-to-r from-orange-400 to-accent-red text-white px-4 py-2 rounded-full text-sm font-medium shadow-md">
+                      ${receta.pasos[0].apto_para}
+                    </span>`
+                  : ''
+              }
+              ${
+                receta.pasos[0].cantidad_pasos
+                  ? `<span class="bg-gradient-to-r from-primary-blue to-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md">
+                      ${receta.pasos[0].cantidad_pasos} pasos
+                    </span>`
+                  : ''
+              }
             </div>
           </div>
+        </div>
+        
         
           ${receta.utensilios && receta.utensilios.length > 0 ? `
           <div class="mb-8">
@@ -139,9 +155,19 @@ function Receta() {
                           <div class="text-xs text-gray-600">${utensilio.tipo} • ${utensilio.usos}</div>
                         </div>
                       </div>
+
+                      <div class="flex justify-end gap-1 mb-2">
+                      <button data-id-utensilio="${utensilio.id}" 
+                      data-nombre="${utensilio.nombre}" 
+                      data-tipo="${utensilio.tipo}"
+                      data-usos="${utensilio.usos}"
+                      class="btnEditarUtensilio w-5 h-5 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors">
+                        ✎
+                      </button>
                       <button  data-id-utensilio="${utensilio.id}" class=" btnEliminarUtensilio w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors">
                         ×
                       </button>
+                      </div>
                     </div>
                   `
                   )
@@ -151,7 +177,7 @@ function Receta() {
 
           </div>
           ` : ''}
-          
+
           <div class="text-center mt-8">
           <button id="btnEliminarReceta" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg">
             Eliminar Receta
@@ -161,7 +187,50 @@ function Receta() {
         </div>
       `;
 
+document.querySelectorAll(".btnEditarUtensilio").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const utensilioId = btn.getAttribute("data-id-utensilio");
+    const nombre = btn.getAttribute("data-nombre");
+    const tipo = btn.getAttribute("data-tipo");
+    const usos = btn.getAttribute("data-usos");
 
+    const recetaId = id
+
+    const utensilioData = {
+      nombre: nombre,
+      tipo: tipo,
+      usos: usos,
+
+    };
+    
+    editarUtensilio(utensilioData, utensilioId, recetaId);
+  });
+});
+
+
+document.querySelectorAll(".btnEditarIngrediente").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const ingredienteId = btn.getAttribute("data-id-ingrediente");
+    const nombre = btn.getAttribute("data-nombre");
+    const descripcion = btn.getAttribute("data-descripcion");
+    const cantidad = btn.getAttribute("data-cantidad");
+    const unidad = btn.getAttribute("data-unidad");
+    const recetaId = id
+
+    const ingredienteData = {
+      nombre: nombre,
+      descripcion: descripcion,
+      cantidad: cantidad,
+      unidad: unidad,
+
+    };
+    
+    editarIngrediente(ingredienteData, ingredienteId, recetaId);
+  });
+});
+
+
+// --------------------------------ELIMINAR---------------------------------------------------
       const btnEliminarReceta = document.getElementById("btnEliminarReceta");
       if (btnEliminarReceta) {
         btnEliminarReceta.addEventListener("click", () => {
@@ -182,6 +251,7 @@ function Receta() {
           borrarIngrediente(id, idIngrediente);
         });
       })
+
 
     })
     .catch((err) => {

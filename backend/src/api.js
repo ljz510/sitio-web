@@ -30,7 +30,7 @@ const PORT = process.env.PORT || 3000;
 //Import funciones
 
 const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta, createPasos} = require('./scripts/recetas.js')
-const {getIngredientesByReceta, getAllIngredientes, createIngrediente, updateIngrediente, deleteIngrediente, findOrCreateIngrediente, createIngPorReceta, deleteRelacionIngReceta} = require('./scripts/ingredientes.js');
+const {getIngredientesByReceta, getAllIngredientes, createIngrediente, updateIngrediente, deleteIngrediente, findOrCreateIngrediente, createIngPorReceta, deleteRelacionIngReceta, updateIngDeReceta} = require('./scripts/ingredientes.js');
 const { getAllUtensilios, getOneUtensilio, getUtensilioPorNombre, getUtensilioByReceta, createUtensilio, updateUtensilio, deleteUtensilio, createUtensilioPorReceta, deleteRelacionUtensilioReceta} = require('./scripts/utensilios.js');
 
 // Health
@@ -267,6 +267,15 @@ app.post('/api/ingredientes', async (req, res) => {
 app.put('/api/ingredientes/:id', async (req, res) => {
   try {
     const actualizado = await updateIngrediente(req.params.id, req.body);
+    res.json(actualizado);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+app.put('/api/ing_por_receta', async (req, res) => {
+  try {
+    const actualizado = await updateIngDeReceta(req.body);
     res.json(actualizado);
   } catch (error) {
     res.status(404).json({ error: error.message });

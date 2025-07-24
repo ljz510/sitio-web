@@ -72,11 +72,9 @@ form.addEventListener("submit", (e) => {
 function formValidation() {
   if (
     nombre.value.trim() === "" ||
-    descripcion.value.trim() === "" ||
     dificultad.value.trim() === "" ||
     porciones.value.trim() === "" ||
     tiempo.value.trim() === "" ||
-    utensiliosJson.value.trim() === "" ||
     ingredientesJson.value.trim() === ""
   ) {
     mensaje.innerText = "Todos los campos son obligatorios.";

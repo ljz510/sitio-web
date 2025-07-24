@@ -47,7 +47,7 @@ const createIngrediente = async ({ nombre, tipo, calorias, descripcion, origen }
 // ------------------------------- PUT -------------------------------
 
 // Funcion para editar un ingrediente
-const updateIngrediente = async (id, { nombre, tipo, calorias, descripcion, origen }) => {
+const updateIngrediente = async (id, { nombre, tipo='test', calorias=100, descripcion, origen='local' }) => {
   const query = `UPDATE ingrediente
     SET nombre = $1, tipo = $2, calorias = $3, descripcion = $4, origen = $5
     WHERE id = $6 RETURNING *`;
@@ -58,6 +58,21 @@ const updateIngrediente = async (id, { nombre, tipo, calorias, descripcion, orig
   return result.rows[0];
 };
 
+const updateIngDeReceta = async ({ receta_id, ingrediente_id, cantidad, unidad }) => {
+  const query = `
+    UPDATE IngPorReceta
+    SET cantidad = $1, unidad = $2
+    WHERE receta_id = $3 AND ingrediente_id = $4
+    RETURNING *;
+  `;
+  const result = await dbClient.query(query, [cantidad, unidad, receta_id, ingrediente_id]);
+
+  if (result.rowCount === 0) {
+    throw new Error('No se encontró el ingrediente en la receta');
+  }
+
+  return result.rows[0];
+};
 
 // ------------------------------- DELETE -------------------------------
 
@@ -135,5 +150,6 @@ module.exports = {
   createIngrediente, updateIngrediente, deleteIngrediente,
   findOrCreateIngrediente,  
   createIngPorReceta,
-  deleteRelacionIngReceta
+  deleteRelacionIngReceta,
+  updateIngDeReceta
 };

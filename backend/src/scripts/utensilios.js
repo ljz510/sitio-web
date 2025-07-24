@@ -91,8 +91,8 @@ async function createUtensilioPorReceta({ receta_id, utensilio_id }) {
 // ------------------------------- PUT -------------------------------
 
 // Funcion para editar un utensilio
-const updateUtensilio = async (id, { nombre, material, tipo, usos, apto_lavavajillas }) => {
-  const query = "UPDATE utensilios SET nombre = $1, material = $2, tipo = $3, usos = $4, apto_lavavajillas = $5 WHERE id = $6 RETURNING *";
+const updateUtensilio = async (id, { nombre, material="cualquiera", tipo, usos, apto_lavavajillas=false }) => {
+  const query = "UPDATE Utensilio SET nombre = $1, material = $2, tipo = $3, usos = $4, apto_lavavajillas = $5 WHERE id = $6 RETURNING *";
   const result = await dbClient.query(query, [nombre, material, tipo, usos, apto_lavavajillas, id]);
   
   if (result.rowCount === 0) {
