@@ -28,11 +28,10 @@ const upload = multer({ storage });
 const PORT = process.env.PORT || 3000;
 
 //Import funciones
-// const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta, createPasos} = require('./scripts/recetas.js')
-// const { findOrCreateIngrediente, createIngPorReceta } = require('./scripts/ingredientes.js');
+
 const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta, createPasos} = require('./scripts/recetas.js')
-const {getIngredientesByReceta, getAllIngredientes, createIngrediente, updateIngrediente, deleteIngrediente, findOrCreateIngrediente, createIngPorReceta} = require('./scripts/ingredientes.js');
-const { getAllUtensilios, getOneUtensilio, getUtensilioPorNombre, getUtensilioByReceta, createUtensilio, updateUtensilio, deleteUtensilio, createUtensilioPorReceta} = require('./scripts/utensilios.js');
+const {getIngredientesByReceta, getAllIngredientes, createIngrediente, updateIngrediente, deleteIngrediente, findOrCreateIngrediente, createIngPorReceta, deleteRelacionIngReceta} = require('./scripts/ingredientes.js');
+const { getAllUtensilios, getOneUtensilio, getUtensilioPorNombre, getUtensilioByReceta, createUtensilio, updateUtensilio, deleteUtensilio, createUtensilioPorReceta, deleteRelacionUtensilioReceta} = require('./scripts/utensilios.js');
 
 // Health
 app.get('/api/health', (req,res) => {
@@ -281,6 +280,16 @@ app.delete('/api/ingredientes/:id', async (req, res) => {
   }
 });
 
+app.delete('/api/receta-ingrediente', async (req, res) => {
+  const { receta_id, ingrediente_id } = req.body;
+  try {
+    const relacion = await deleteRelacionIngReceta(receta_id, ingrediente_id);
+    res.json({ mensaje: "Relación eliminada con éxito", relacion });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
 
 //ENDPOINTS ------------------------------- UTENSILIOS -------------------------------
 
@@ -379,6 +388,18 @@ app.delete('/api/utensilios/:id', async (req, res) => {
     res.status(404).json({ error: error.message });
   }
 });
+
+app.delete('/api/receta-utensilio', async (req, res) => {
+  const { receta_id, utensilio_id } = req.body;
+
+  try {
+    const relacion = await deleteRelacionUtensilioReceta(receta_id, utensilio_id);
+    res.json({ mensaje: "Relación eliminada con éxito", relacion });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
 
 
 // Mensaje al abrir Backend

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agregar Receta</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="icon" href="img/logo.png" type="image/png" />
   <link rel="stylesheet" href="css/styles.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -58,17 +59,26 @@
 
 
 
-<div class="container py-5">
+<div class="container py-5 p-20">
   <h1 class="text-3xl text-center font-extrabold text-primary-blue mb-6">¡Agregá la receta que más te guste!</h1>
 
 
   <form id="form" enctype="multipart/form-data" class="bg-white p-4 shadow-sm rounded">
     
-    <div class="mb-3">
+    <!-- <div class="mb-3">
       <label for="nombre" class="form-label">Nombre de la receta</label>
       <input type="text" class="form-control" id="nombre" name="nombre" required>
+    </div> -->
+    <div class="row mb-3">
+      <div class="col-md-8">
+        <label for="nombre" class="form-label">Nombre de la receta</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" required>
+      </div>
+      <div class="col-md-4">
+        <label for="imagen" class="form-label">Imagen</label>
+        <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+      </div>
     </div>
-
 
     <div class="mb-3">
       <label for="descripcion" class="form-label">Descripción</label>
@@ -98,89 +108,26 @@
       </div>
     </div>
 
-    <div class="mb-3">
+    <!-- <div class="mb-3">
       <label for="imagen" class="form-label">Imagen de la receta</label>
       <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
-    </div>
+    </div> -->
 
     <div class="mb-3">
       <label for="receta_entera" class="form-label">Receta Entera:</label>
       <textarea class="form-control" id="receta_entera" name="receta_entera" rows="4"></textarea>
     </div>
-
     <div class="row mb-3">
       <div class="col-md-6">
         <label for="cantidad_pasos" class="form-label">Cantidad de Pasos:</label>
         <input type="number" class="form-control" id="cantidad_pasos" name="cantidad_pasos" value="">
       </div>
-    </div>
-
-    <div class="row mb-3">
       <div class="col-md-6">
         <label for="apto_para" class="form-label">Apto Para:</label>
         <input type="text" class="form-control" id="apto_para" name="apto_para" placeholder="Veganos, Celiacos , General" value="">
       </div>
     </div>
-<!-- -----------------------------Utensilios------------------------------------ -->
-<div id="utensilios-container" class="mb-3">
-  <label class="form-label">Utensilios:</label>
-  
-  <div id="utensilios-list"></div>
 
-  <button type="button" class="btn btn-secondary mt-2" onclick="agregarUtensilios()">Agregar Utensilios</button>
-</div>
-<input type="hidden" name="utensilios" id="utensilios-json" />
-<script>
-  let utensilios = [];
-  
-  function agregarUtensilios(nombre = '', tipo = '', usos = '') {
-    const index = utensilios.length;
-  
-    const container = document.createElement('div');
-    container.className = 'mb-2 row align-items-end';
-    container.innerHTML = `
-      <div class="col">
-        <input type="text" class="form-control" placeholder="Nombre" onchange="actualizarUtensilios(${index}, 'nombre', this.value)" value="${nombre}">
-      </div>
-      <div class="col">
-        <input type="text" class="form-control" placeholder="tipo" onchange="actualizarUtensilios(${index}, 'tipo', this.value)" value="${tipo}">
-      </div>
-      <div class="col">
-        <input type="text" class="form-control" placeholder="usos" onchange="actualizarUtensilios(${index}, 'usos', this.value)" value="${usos}">
-      </div>
-      <div class="col-auto">
-        <button type="button" class="btn btn-danger" onclick="eliminarUtensilios(${index})">X</button>
-      </div>
-    `;
-  
-    document.getElementById('utensilios-list').appendChild(container);
-  
-    utensilios.push({ nombre, tipo, usos });
-    actualizarCampoOcultoUten();
-  }
-  
-  function actualizarUtensilios(index, campo, valor) {
-    utensilios[index][campo] = valor;
-    actualizarCampoOcultoUten();
-  }
-  
-  function eliminarUtensilios(index) {
-    utensilios.splice(index, 1);
-    renderizarUtensilios();
-    actualizarCampoOcultoUten();
-  }
-  
-  function renderizarUtensilios() {
-    document.getElementById('utensilios-list').innerHTML = '';
-    const copia = [...utensilios];
-    utensilios = [];
-    copia.forEach(i => agregarUtensilios(i.nombre, i.tipo, i.usos));
-  }
-  
-  function actualizarCampoOcultoUten() {
-    document.getElementById('utensilios-json').value = JSON.stringify(utensilios);
-  }
-  </script>
   
 <!-- -------------------------------Ingredientes-------------------------------------------- -->
     <div id="ingredientes-container" class="mb-3">
@@ -245,6 +192,68 @@
         document.getElementById('ingredientes-json').value = JSON.stringify(ingredientes);
       }
       </script>
+
+  <!-- -----------------------------Utensilios------------------------------------ -->
+<div id="utensilios-container" class="mb-3">
+  <label class="form-label">Utensilios:</label>
+  
+  <div id="utensilios-list"></div>
+
+  <button type="button" class="btn btn-secondary mt-2" onclick="agregarUtensilios()">Agregar Utensilios</button>
+</div>
+<input type="hidden" name="utensilios" id="utensilios-json" />
+<script>
+  let utensilios = [];
+  
+  function agregarUtensilios(nombre = '', tipo = '', usos = '') {
+    const index = utensilios.length;
+  
+    const container = document.createElement('div');
+    container.className = 'mb-2 row align-items-end';
+    container.innerHTML = `
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Nombre" onchange="actualizarUtensilios(${index}, 'nombre', this.value)" value="${nombre}">
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" placeholder="tipo" onchange="actualizarUtensilios(${index}, 'tipo', this.value)" value="${tipo}">
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" placeholder="usos" onchange="actualizarUtensilios(${index}, 'usos', this.value)" value="${usos}">
+      </div>
+      <div class="col-auto">
+        <button type="button" class="btn btn-danger" onclick="eliminarUtensilios(${index})">X</button>
+      </div>
+    `;
+  
+    document.getElementById('utensilios-list').appendChild(container);
+  
+    utensilios.push({ nombre, tipo, usos });
+    actualizarCampoOcultoUten();
+  }
+  
+  function actualizarUtensilios(index, campo, valor) {
+    utensilios[index][campo] = valor;
+    actualizarCampoOcultoUten();
+  }
+  
+  function eliminarUtensilios(index) {
+    utensilios.splice(index, 1);
+    renderizarUtensilios();
+    actualizarCampoOcultoUten();
+  }
+  
+  function renderizarUtensilios() {
+    document.getElementById('utensilios-list').innerHTML = '';
+    const copia = [...utensilios];
+    utensilios = [];
+    copia.forEach(i => agregarUtensilios(i.nombre, i.tipo, i.usos));
+  }
+  
+  function actualizarCampoOcultoUten() {
+    document.getElementById('utensilios-json').value = JSON.stringify(utensilios);
+  }
+  </script>
+
       
     <div class="d-grid">
       <button type="submit" class="btn btn-primary">Agregar Receta</button>

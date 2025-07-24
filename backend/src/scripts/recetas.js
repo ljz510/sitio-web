@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 const {getIngredientesByReceta} = require("./ingredientes")
 const {getPasosByReceta} = require("./pasos")
-
+const {getUtensiliosByReceta} = require("./utensilios")
 const dbClient = new Pool({
   user: 'postgres',
   port: 5432,
@@ -33,8 +33,10 @@ const getOneReceta = async (id) => {
   // Llamamos a la función importada
   const ingredientes = await getIngredientesByReceta(id);
   const pasos = await getPasosByReceta(id);
+  const utensilios = await getUtensiliosByReceta(id)
   receta.ingredientes = ingredientes;
-  receta.pasos = pasos
+  receta.pasos = pasos;
+  receta.utensilios= utensilios;
 
   return receta;
 };

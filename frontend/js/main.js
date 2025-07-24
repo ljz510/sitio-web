@@ -11,7 +11,7 @@ function mostrarRecetas() {
         const li = document.createElement('li');
         li.className = 'flex justify-center';
         li.innerHTML = `
-        <a href="detalle_receta.html?id=${receta.id}">
+        <a href="receta.html?id=${receta.id}">
                 <div class="w-64 bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
             <div >
               <img src="http://localhost:3000/images/${receta.imagen}"
@@ -118,6 +118,14 @@ async function createPost() {
 
     const receta = await res.json();
 
+    Swal.fire({
+        icon: "success",
+        title: "¡Receta creada!",
+        text: "La receta fue creada correctamente.",
+      }).then(() => {
+        form.reset();
+      });
+      
     // mensaje de receta creada
     mensaje.innerText = "Receta creada correctamente.";
     mensaje.style.color = "green";
@@ -133,27 +141,3 @@ async function createPost() {
   }
 }
 
-/*
-CÓDIGO PARA SECCIÓN BORRAR RECETA
-*/ 
-
-function borrarReceta(id) {
-  if (confirm("¿Seguro que querés borrar la receta?")) {
-    fetch(`http://localhost:3000/api/recetas/${id}`, { method: "DELETE" })
-      .then(() => window.location.href = "ver_recetas.html");
-  }
-}
-
-function borrarIngrediente(id) {
-  if (confirm("¿Eliminar ingrediente?")) {
-    fetch(`http://localhost:3000/api/ingredientes/${id}`, { method: "DELETE" })
-      .then(() => location.reload());
-  }
-}
-
-function borrarUtensilio(id) {
-  if (confirm("¿Eliminar utensilio?")) {
-    fetch(`http://localhost:3000/api/utensilios/${id}`, { method: "DELETE" })
-      .then(() => location.reload());
-  }
-}

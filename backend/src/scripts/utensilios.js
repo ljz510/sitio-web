@@ -52,6 +52,17 @@ const getUtensilioPorNombre = async (nombre) => {
   return result.rows[0];  // Devuelve undefined si no existe
 }
 
+const getUtensiliosByReceta = async (id) => {
+  const utensiliosQuery = `
+    SELECT u.id, u.nombre, u.material, u.tipo, u.usos, u.apto_lavavajillas
+    FROM utensilio u
+    JOIN utenporreceta upr ON u.id = upr.utensilio_id
+    WHERE upr.receta_id = $1
+  `;
+  const utensiliosResult = await dbClient.query(utensiliosQuery, [id]);
+  return utensiliosResult.rows;
+};
+
 
 // ------------------------------- POST -------------------------------
 
@@ -94,13 +105,31 @@ const updateUtensilio = async (id, { nombre, material, tipo, usos, apto_lavavaji
 
 // Funcion para eliminar un utensilio
 const deleteUtensilio = async (id) => {
-  const query = 'DELETE FROM utensilios WHERE id = $1 RETURNING id';
-  const result = await dbClient.query(query, [id]);
+  await dbClient.query('BEGIN'); 
+
+  await dbClient.query('DELETE FROM UtenPorReceta WHERE utensilio_id = $1', [id]);
+
+  const result = await dbClient.query('DELETE FROM Utensilio WHERE id = $1 RETURNING id', [id]);
+
   if (result.rowCount === 0) {
+    await dbClient.query('ROLLBACK');
     throw new Error('Utensilio no encontrado');
   }
+  await dbClient.query('COMMIT');
   return result.rows[0].id;
 };
+
+const deleteRelacionUtensilioReceta = async (recetaId, utensilioId) => {
+  const query = `
+    DELETE FROM UtenPorReceta WHERE receta_id = $1 AND utensilio_id = $2 RETURNING receta_id, utensilio_id
+  `;
+  const result = await dbClient.query(query, [recetaId, utensilioId]);
+  if (result.rowCount === 0) {
+    throw new Error('Relación no encontrada');
+  }
+  return result.rows[0];
+};
+
 
 
 // Exportar el pool y funciones
@@ -112,5 +141,7 @@ module.exports = {
   createUtensilio,
   deleteUtensilio,
   updateUtensilio,
-  createUtensilioPorReceta
+  createUtensilioPorReceta,
+  getUtensiliosByReceta,
+  deleteRelacionUtensilioReceta
 };

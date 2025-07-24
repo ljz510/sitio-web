@@ -14,7 +14,7 @@ const dbClient = new Pool({
 // Función para los ingredientes de una receta
 const getIngredientesByReceta= async (id) => {
     const ingredientesQuery = `
-    SELECT i.nombre, i.tipo, i.calorias, i.descripcion, ipr.cantidad, ipr.unidad
+    SELECT i.id, i.nombre, i.tipo, i.calorias, i.descripcion, ipr.cantidad, ipr.unidad
     FROM ingrediente i
     JOIN ingporreceta ipr ON i.id = ipr.ingrediente_id
     WHERE ipr.receta_id = $1
@@ -63,14 +63,36 @@ const updateIngrediente = async (id, { nombre, tipo, calorias, descripcion, orig
 
 // Funcion para eliminar un ingrediente
 const deleteIngrediente = async (id) => {
-  const query = 'DELETE FROM ingrediente WHERE id = $1 RETURNING id';
-  const result = await dbClient.query(query, [id]);
-  if (result.rowCount === 0) {
-    throw new Error('Ingrediente no encontrado');
+  try {
+    await dbClient.query('BEGIN');
+    await dbClient.query('DELETE FROM IngPorReceta WHERE ingrediente_id = $1', [id]);
+
+    const result = await dbClient.query('DELETE FROM Ingrediente WHERE id = $1 RETURNING id', [id]);
+    if (result.rowCount === 0) {
+      await dbClient.query('ROLLBACK');
+      throw new Error('Ingrediente no encontrado');
+    }
+    await dbClient.query('COMMIT');
+    return result.rows[0].id;
+  } catch (error) {
+    await dbClient.query('ROLLBACK');
+    throw error;
   }
-  return result.rows[0].id;
 };
 
+const deleteRelacionIngReceta = async (recetaId, ingredienteId ) => {
+  const query = `
+    DELETE FROM IngPorReceta WHERE receta_id = $1 AND ingrediente_id = $2 RETURNING receta_id, ingrediente_id
+  `;
+  const result = await dbClient.query(query, [recetaId, ingredienteId]);
+  if (result.rowCount === 0) {
+    throw new Error('Relación no encontrada');
+  }
+  return result.rows[0];
+};
+
+
+// ----------------------------RELACIONES CON RECETA-------------------------------------------------------
 async function findOrCreateIngrediente({ nombre, tipo = 'general', calorias = 0, descripcion, origen= 'Nacional' }) {
   try {
       let result = await dbClient.query(
@@ -106,10 +128,12 @@ async function createIngPorReceta({ receta_id, ingrediente_id, cantidad, unidad 
       return undefined;
   }
 }
+
 // Exportar el pool y funciones
 module.exports = {
   getIngredientesByReceta,getAllIngredientes,
   createIngrediente, updateIngrediente, deleteIngrediente,
   findOrCreateIngrediente,  
-  createIngPorReceta 
+  createIngPorReceta,
+  deleteRelacionIngReceta
 };

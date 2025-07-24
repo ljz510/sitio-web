@@ -1,4 +1,6 @@
-function detalleReceta() {
+import { borrarReceta, borrarIngrediente, borrarUtensilio } from './delete_recetas.js';
+
+function Receta() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
 
@@ -52,7 +54,8 @@ function detalleReceta() {
                 </div>
               </div>
             </div>
-               
+
+    
             <div>
               <h2 class="text-2xl font-bold mb-4 text-primary-blue relative">
                 Ingredientes
@@ -75,10 +78,15 @@ function detalleReceta() {
                         }</div>
                       </div>
                     </div>
-                    <div class="text-right">
-                      <div class="font-bold text-primary-blue">${
-                        ingrediente.cantidad
-                      } ${ingrediente.unidad}</div>
+                    <div class="flex items-center gap-3">
+                      <div class="text-right">
+                        <div class="font-bold text-primary-blue">${
+                          ingrediente.cantidad
+                        } ${ingrediente.unidad}</div>
+                      </div>
+                      <button data-id-ingrediente="${ingrediente.id}" class="btnEliminarIngrediente w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors">
+                        ×
+                      </button>
                     </div>
                   </div>
                 `
@@ -87,7 +95,8 @@ function detalleReceta() {
               </div>
             </div>
           </div>
-      
+
+        
           <div class="mb-8">
             <h2 class="text-2xl font-bold mb-4 text-primary-blue relative">
              Preparación
@@ -109,14 +118,77 @@ function detalleReceta() {
               </div>
             </div>
           </div>
+        
+          ${receta.utensilios && receta.utensilios.length > 0 ? `
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-primary-blue relative">
+              Utensilios Necesarios
+            </h2>
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-orange-100">
+              <div class="grid grid-cols-2 gap-4">
+                ${receta.utensilios
+                  .map(
+                    (utensilio, index) => `
+                    <div class="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-lg">
+                      <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-primary-blue rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          ${index + 1}
+                        </div>
+                        <div>
+                          <div class="font-semibold text-primary-blue text-sm">${utensilio.nombre}</div>
+                          <div class="text-xs text-gray-600">${utensilio.tipo} • ${utensilio.usos}</div>
+                        </div>
+                      </div>
+                      <button  data-id-utensilio="${utensilio.id}" class=" btnEliminarUtensilio w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors">
+                        ×
+                      </button>
+                    </div>
+                  `
+                  )
+                  .join("")}
+              </div>
+            </div>
+
+          </div>
+          ` : ''}
+          
+          <div class="text-center mt-8">
+          <button id="btnEliminarReceta" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg">
+            Eliminar Receta
+          </button>
+        </div>
+
         </div>
       `;
+
+
+      const btnEliminarReceta = document.getElementById("btnEliminarReceta");
+      if (btnEliminarReceta) {
+        btnEliminarReceta.addEventListener("click", () => {
+          borrarReceta(id); 
+        });
+      }
+
+      document.querySelectorAll(".btnEliminarUtensilio").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idUtensilio = btn.getAttribute("data-id-utensilio");
+          borrarUtensilio(id, idUtensilio);
+        });
+      })
+     
+      document.querySelectorAll(".btnEliminarIngrediente").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idIngrediente = btn.getAttribute("data-id-ingrediente");
+          borrarIngrediente(id, idIngrediente);
+        });
+      })
+
     })
     .catch((err) => {
       console.error("Error cargando receta:", err);
       document.getElementById("detalle-receta").innerHTML =
         '<p class="text-center text-red-600">Error al cargar la receta.</p>';
     });
-}
 
-detalleReceta();
+}
+Receta();
