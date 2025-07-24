@@ -1,39 +1,67 @@
+//Imports
 const express = require('express');
 var cors = require('cors');
+const path = require('path');
+const multer = require('multer');
 
+//Asignaciones para que se forme la App
 const app = express();
 app.use(express.json());
 app.use(cors())
-app.use('/images', express.static('public/images'));
+app.use('/images', express.static(path.join(__dirname, '..','public','images')));
 
+// Define carpeta de destino y nombre de archivo
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/images');
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const fileName = Date.now() + ext;
+    cb(null, fileName);
+  }
+});
+
+const upload = multer({ storage });
+
+//Puerto donde Trabaja
 const PORT = process.env.PORT || 3000;
 
-const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta} = require('./scripts/recetas.js')
+//Import funciones
+
+const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta, createPasos} = require('./scripts/recetas.js')
+const {getIngredientesByReceta, getAllIngredientes, createIngrediente, updateIngrediente, deleteIngrediente, findOrCreateIngrediente, createIngPorReceta, deleteRelacionIngReceta} = require('./scripts/ingredientes.js');
+const { getAllUtensilios, getOneUtensilio, getUtensilioPorNombre, getUtensilioByReceta, createUtensilio, updateUtensilio, deleteUtensilio, createUtensilioPorReceta, deleteRelacionUtensilioReceta} = require('./scripts/utensilios.js');
+
+// Health
 app.get('/api/health', (req,res) => {
     res.json({ status: 'OK' });
 });
 
-// Get All
+
+//ENDPOINTS ------------------------------- RECETAS -------------------------------
+
+//* GET ALL
 app.get('/api/recetas', async (req, res)=>{
     const recetas = await getAllRecetas();
     res.json(recetas);
 })
 
-// Get One
+//* GET ONE
 app.get('/api/recetas/:id', async (req, res)=>{
     const receta = await getOneReceta(req.params.id);
     res.json(receta);
 })
 
-//Post
-app.post("/api/recetas", async (req, res) => {
-    const {
-        nombre,
-        descripcion,
-        tiempo_preparacion,
-        porciones,
-        dificultad,
-        imagen } = req.body;
+//* POST
+app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
+    const { 
+        nombre, descripcion, porciones, tiempo_preparacion, dificultad,
+        receta_entera, cantidad_pasos, apto_para,
+        ingredientes, utensilios
+    } = req.body;
+    
+    const imagen = req.file ? req.file.filename: null;
 
     // Errores principales
     if (!req.body) {
@@ -62,27 +90,83 @@ app.post("/api/recetas", async (req, res) => {
         return res.status(409).send("La receta ya existe");
     }
 
-    // Crear receta
-    const nuevaReceta = {
+    const recetaData = {
         nombre,
         descripcion,
-        tiempo_preparacion,
-        porciones,
+        tiempo_preparacion: parseInt(tiempo_preparacion),
+        porciones: parseInt(porciones),
         dificultad,
         imagen
     };
 
-    const id = await createReceta(nuevaReceta);
 
-    if (!id) {
-        return res.sendStatus(500);
+    const nuevaReceta = await createReceta(recetaData);
+
+     const pasosData = {
+        receta_id: nuevaReceta.id,
+        cantidad_pasos: parseInt(cantidad_pasos),
+        receta_entera,
+        apto_para: apto_para || 'general'
+    };
+
+    const nuevosPasos = await createPasos(pasosData);
+    if (!nuevosPasos) {
+        return res.status(500).json({ error: "Error al crear los pasos" });
     }
 
-    res.status(201).json({ id, ...nuevaReceta });
+    if(utensilios){
+      const utensilioArray = JSON.parse(utensilios);
+      for (const u of utensilioArray) {
+     
+        const utensilios = await createUtensilio({
+           nombre: u.nombre.trim(),
+           tipo:u.tipo,
+           usos: u.usos,
+        });
+
+        if (utensilios) {
+            // Crear la relación
+            await createUtensilioPorReceta({
+                receta_id: nuevaReceta.id,
+                utensilio_id: utensilios.id,
+            });
+        }
+    }
+    }
+
+    if (ingredientes) {
+        const ingredientesArray = JSON.parse(ingredientes);
+        
+        for (const ing of ingredientesArray) {
+            if (!ing.nombre || !ing.cantidad || !ing.unidad) {
+                continue; 
+            }
+
+            const ingrediente = await findOrCreateIngrediente({
+                nombre: ing.nombre.trim(),
+                descripcion: `Ingrediente usado en: ${nombre}`
+            });
+
+            if (ingrediente) {
+                // Crear la relación
+                await createIngPorReceta({
+                    receta_id: nuevaReceta.id,
+                    ingrediente_id: ingrediente.id,
+                    cantidad: parseFloat(ing.cantidad),
+                    unidad: ing.unidad.trim()
+                });
+            }
+        }
+    }
+
+    res.status(201).json({
+        message: "Receta creada exitosamente",
+        receta: nuevaReceta,
+        pasos: nuevosPasos
+    });
 });
 
-
-// Delete
+//* DELETE
 app.delete("/api/recetas/:id", async (req, res) => {
   try {
     const recetaEliminada = await deleteReceta(req.params.id);
@@ -96,7 +180,7 @@ app.delete("/api/recetas/:id", async (req, res) => {
   }
 });
 
-// Put
+//* PUT
 app.put("/api/recetas/:id", async (req, res) => {
     let receta = await getOneReceta[req.params.id];
 
@@ -133,6 +217,192 @@ app.put("/api/recetas/:id", async (req, res) => {
     res.json(receta);
 });
 
+
+//ENDPOINTS ------------------------------- INGREDIENTES -------------------------------
+
+// *GET ALL
+app.get('/api/ingredientes', async (req, res) => {
+  try {
+    const ingredientes = await getAllIngredientes();
+    res.json(ingredientes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// *GET ONE
+app.get('/api/ingredientes/:id', async (req,res) => {
+  try {
+    const ingrediente = await getOneIngrediente();
+    res.json(ingrediente);
+  } catch (error){
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// *GET From RECETA 
+app.get('/api/recetas/:id/ingredientes', async (req, res) => {
+  try {
+    const ingredientes = await getIngredientesByReceta(req.params.id);
+    res.json(ingredientes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// *POST
+app.post('/api/ingredientes', async (req, res) => {
+  try {
+    const nuevo = await createIngrediente(req.body);
+    res.status(201).json(nuevo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// *PUT
+app.put('/api/ingredientes/:id', async (req, res) => {
+  try {
+    const actualizado = await updateIngrediente(req.params.id, req.body);
+    res.json(actualizado);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+// *DELETE
+app.delete('/api/ingredientes/:id', async (req, res) => {
+  try {
+    const eliminado = await deleteIngrediente(req.params.id);
+    res.json({ id: eliminado });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+app.delete('/api/receta-ingrediente', async (req, res) => {
+  const { receta_id, ingrediente_id } = req.body;
+  try {
+    const relacion = await deleteRelacionIngReceta(receta_id, ingrediente_id);
+    res.json({ mensaje: "Relación eliminada con éxito", relacion });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+
+//ENDPOINTS ------------------------------- UTENSILIOS -------------------------------
+
+// *GET ALL
+app.get('/api/utensilios', async (req, res) => {
+  try {
+    const utensilios = await getAllUtensilios();
+    res.json(utensilios);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// *GET ONE
+app.get('/api/utensilios/:id', async (req,res) => {
+  try {
+    const utensilio = await getOneUtensilio(req.params.id);
+    res.json(utensilio);
+  } catch (error){
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+// *GET From RECETA
+app.get('/api/recetas/:id/utensilios', async (req, res) => {
+  try {
+    const utensilios = await getUtensilioByReceta(req.params.id);
+    res.json(utensilios);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// *POST
+app.post("/api/utensilios", async (req, res) => {
+    const { nombre, material, tipo, usos, apto_lavavajillas } = req.body;
+
+    // Errores principales
+    if (!req.body) {
+        return res.status(400).send("No se recibió ningún parámetro");
+    }
+
+    if (!nombre) {
+        return res.status(400).send("No se recibió un 'Nombre'");
+    }
+    if (!material) {
+        return res.status(400).send("No se recibió el 'Material'");
+    }
+    if (!tipo) {
+        return res.status(400).send("No se recibió el 'Tipo'");
+    }
+    if (!usos) {
+        return res.status(400).send("No se recibieron los 'Usos'");
+    }
+    if (!apto_lavavajillas) {
+        return res.status(400).send("No se recibió si es apto o no para Lavavajillas");
+    }
+
+    // Verificar si el utensilio ya existe
+    const utensilioExistente = await getUtensilioPorNombre(nombre);
+    if (utensilioExistente !== undefined && utensilioExistente !== null) {
+        return res.status(409).send("El utensilio ya existe");
+    }
+
+    // Crear utensilio 
+    const nuevoUtensilio = {
+        nombre, material, tipo,
+        usos, apto_lavavajillas
+    };
+    const id = await createUtensilio(nuevoUtensilio);
+
+    if (!id) {
+      return res.status(500).json({ mensaje: "Error interno", error: error.message });
+    }
+    res.status(201).json({ mensaje: "Utensilio creado", id });
+});
+
+
+// *PUT
+app.put('/api/utensilios/:id', async (req, res) => {
+  try {
+    const utensilio = await updateUtensilio(req.params.id, req.body);
+    res.json(utensilio);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+// *DELETE
+app.delete('/api/utensilios/:id', async (req, res) => {
+  try {
+    const utensilio = await deleteUtensilio(req.params.id);
+    res.json({ mensaje:"Utensilio eliminado", utensilio });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+app.delete('/api/receta-utensilio', async (req, res) => {
+  const { receta_id, utensilio_id } = req.body;
+
+  try {
+    const relacion = await deleteRelacionUtensilioReceta(receta_id, utensilio_id);
+    res.json({ mensaje: "Relación eliminada con éxito", relacion });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+
+
+// Mensaje al abrir Backend
 app.listen(PORT, () => {
     console.log("Server Listening on PORT:",PORT)
 })

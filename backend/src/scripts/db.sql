@@ -14,7 +14,8 @@ CREATE TABLE Ingrediente (
     nombre VARCHAR(100) NOT NULL,
     tipo VARCHAR(100) NOT NULL,
     calorias INT,
-    descripcion VARCHAR(150) NOT NULL
+    descripcion VARCHAR(150) NOT NULL,
+    origen VARCHAR(100) NOT NULL -- Nuevo campo para origen del ingrediente
 );
 
 CREATE TABLE Pasos (
@@ -26,6 +27,20 @@ CREATE TABLE Pasos (
     receta_entera VARCHAR(300) NOT NULL,
     apto_para VARCHAR(100) NOT NULL
 );
+
+-- Nueva tabla para utensilios de cocina
+CREATE TABLE Utensilio (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,              -- Nombre del utensilio (ej: Sartén)
+    material VARCHAR(50) NOT NULL,             -- Material principal (ej: Acero, Silicona)
+    tipo VARCHAR(50) NOT NULL,                 -- Tipo (ej: Eléctrico, Manual)
+    usos TEXT NOT NULL,                        -- Breve descripción de usos (ej: Para freír, batir, etc.)
+    apto_lavavajillas BOOLEAN DEFAULT true     -- Si puede meterse al lavavajillas o no
+);
+
+CREATE TABLE UtenPorReceta (
+    receta_id INT REFERENCES Receta(id) ON DELETE CASCADE,
+    utensilio_id INT REFERENCES Utensilio(id));
 
 CREATE TABLE IngPorReceta (
     id SERIAL PRIMARY KEY,

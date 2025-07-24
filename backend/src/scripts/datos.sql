@@ -5,14 +5,14 @@ VALUES
 ('Ensalada fresca', 'Mix de lechuga, rúcula y tomates cherry con oliva.', 10, 2, 'Fácil', 'ensalada.jpg');
 
 -- Insertar ingredientes
-INSERT INTO Ingrediente (nombre, tipo, calorias, descripcion)
+INSERT INTO Ingrediente (nombre, tipo, calorias, descripcion, origen)
 VALUES
-('Harina', 'Seco', 364, 'Harina de trigo refinada para masa'),
-('Queso mozzarella', 'Lácteo', 280, 'Queso fresco ideal para fundir'),
-('Tomate', 'Vegetal', 18, 'Tomate rojo maduro'),
-('Lechuga', 'Vegetal', 14, 'Hojas verdes frescas'),
-('Tomates cherry', 'Vegetal', 20, 'Tomates pequeños y dulces'),
-('Aceite de oliva', 'Grasa', 884, 'Aceite prensado en frío');
+('Harina', 'Seco', 364, 'Harina de trigo refinada para masa', 'arg'),
+('Queso mozzarella', 'Lácteo', 280, 'Queso fresco ideal para fundir', 'italia'),
+('Tomate', 'Vegetal', 18, 'Tomate rojo maduro', 'arg'),
+('Lechuga', 'Vegetal', 14, 'Hojas verdes frescas','arg'),
+('Tomates cherry', 'Vegetal', 20, 'Tomates pequeños y dulces','arg'),
+('Aceite de oliva', 'Grasa', 884, 'Aceite prensado en frío', 'españa');
 
 -- Insertar pasos para Pizza
 INSERT INTO Pasos (receta_id, cantidad_pasos, dificultad, tiempo_estimado, receta_entera, apto_para)

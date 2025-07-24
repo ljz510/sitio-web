@@ -52,6 +52,13 @@ section ul {
     gap: 50px
 }
 
+#search-input {
+  border: 2px solid #01024e; /* tu color primary-blue */
+  border-radius: 5px;
+  padding: 8px;
+}
+
+
 section a {
     color: #6680f1;
     margin-bottom: 16px;
