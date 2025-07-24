@@ -1,46 +1,62 @@
-const API_URL = 'http://localhost:3000/api/recetas'
+const API_URL = 'http://localhost:3000/api/recetas';
 
-function mostrarRecetas() {
+let recetasCargadas = [];// variable para almacenar las recetas cargadas
+
+function mostrarRecetas(recetas) {
+  const lista = document.getElementById('lista-recetas');
+  lista.innerHTML = '';
+
+  recetas.forEach(receta => {
+    const li = document.createElement('li');
+    li.className = 'flex justify-center';
+    li.innerHTML = `
+      <a href="receta.html?id=${receta.id}">
+        <div class="w-64 bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+          <div>
+            <img src="http://localhost:3000/images/${receta.imagen}" alt="${receta.nombre}" class="w-full h-48 object-cover" />
+            <div class="absolute top-3 right-3">
+              <span class="bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs font-medium">
+                ⏱️ ${receta.tiempo_preparacion}
+              </span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">${receta.nombre}</h3>
+            <p class="text-gray-600 text-sm mb-4 text-center">${receta.descripcion}</p>
+          </div>
+        </div>
+      </a>
+    `;
+    lista.appendChild(li);
+  });
+}
+// carga las recetas desde la API y las muestra
+function obtenerYMostrarRecetas() {
   fetch(API_URL)
     .then(res => res.json())
     .then(data => {
-      const lista = document.getElementById('lista-recetas');
-      lista.innerHTML = '';
-      
-      data.forEach(receta => {
-        const li = document.createElement('li');
-        li.className = 'flex justify-center';
-        li.innerHTML = `
-        <a href="receta.html?id=${receta.id}">
-                <div class="w-64 bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-            <div >
-              <img src="http://localhost:3000/images/${receta.imagen}"
-                   alt="${receta.nombre}"
-                   class="w-full h-48 object-cover" />
-              <div class="absolute top-3 right-3">
-                <span class="bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs font-medium">
-                  ⏱️ ${receta.tiempo_preparacion}
-                </span>
-              </div>
-            </div>
-            <div class="p-5">
-              <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">${receta.nombre}</h3>
-              <p class="text-gray-600 text-sm mb-4 text-center">${receta.descripcion}</p>
-              <div class="flex items-center justify-center">
-              </div>
-            </div>
-          </div>
-          </a>
-        `;      
-        lista.appendChild(li);
-      });
+      recetasCargadas = data;
+      mostrarRecetas(recetasCargadas);
     })
-    .catch(err => {
-      console.error('Error cargando recetas:', err);
-    });
+    .catch(err => console.error('Error cargando recetas:', err));
 }
+// aguarda a que el DOM esté completamente cargado antes de ejecutar el código
+document.addEventListener('DOMContentLoaded', () => {
+  obtenerYMostrarRecetas();
+  // agrega el evento de búsqueda en tiempo real
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', function (e) {
+      const valor = e.target.value.toLowerCase();
+      const filtradas = recetasCargadas.filter(receta =>
+        receta.nombre.toLowerCase().includes(valor)
+      );
+      mostrarRecetas(filtradas);
+    });
+  }
+});
 
-mostrarRecetas();
+
 
 /*
 CÓDIGO PARA SECCIÓN AGREGAR_RECETAS
@@ -72,9 +88,11 @@ form.addEventListener("submit", (e) => {
 function formValidation() {
   if (
     nombre.value.trim() === "" ||
+    descripcion.value.trim() === "" ||
     dificultad.value.trim() === "" ||
     porciones.value.trim() === "" ||
     tiempo.value.trim() === "" ||
+    utensiliosJson.value.trim() === "" ||
     ingredientesJson.value.trim() === ""
   ) {
     mensaje.innerText = "Todos los campos son obligatorios.";
@@ -138,4 +156,3 @@ async function createPost() {
     mensaje.style.color = "red";
   }
 }
-
