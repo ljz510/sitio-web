@@ -71,9 +71,6 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
     if (!nombre) {
         return res.status(400).send("No se recibió un 'Nombre'");
     }
-    if (!descripcion) {
-        return res.status(400).send("No se recibió una 'Descripción'");
-    }
     if (!tiempo_preparacion) {
         return res.status(400).send("No se recibió un 'Tiempo'");
     }
@@ -84,6 +81,13 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
         return res.status(400).send("No se recibió la 'Dificultad'");
     }
 
+    if (!receta_entera) {
+      return res.status(400).send("No se recibió la 'Receta entera'");
+  }
+    if(!ingredientes){
+      return res.status(400).send("No se recibió los 'ingredientes'");
+    }
+
     // Verificar si la receta ya existe (por nombre)
     const recetaExistente = await getRecetaPorNombre(nombre);
     if (recetaExistente !== undefined && recetaExistente !== null) {
@@ -92,7 +96,7 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
 
     const recetaData = {
         nombre,
-        descripcion,
+        descripcion: descripcion || 'no hay descripción',
         tiempo_preparacion: parseInt(tiempo_preparacion),
         porciones: parseInt(porciones),
         dificultad,
@@ -102,13 +106,13 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
 
     const nuevaReceta = await createReceta(recetaData);
 
-     const pasosData = {
-        receta_id: nuevaReceta.id,
-        cantidad_pasos: parseInt(cantidad_pasos),
-        receta_entera,
-        apto_para: apto_para || 'general'
+    const pasosData = {
+      receta_id: nuevaReceta.id,
+      cantidad_pasos: cantidad_pasos ? parseInt(cantidad_pasos) : null,
+      receta_entera,
+      apto_para: apto_para || 'general'
     };
-
+  
     const nuevosPasos = await createPasos(pasosData);
     if (!nuevosPasos) {
         return res.status(500).json({ error: "Error al crear los pasos" });
@@ -120,8 +124,10 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
      
         const utensilios = await createUtensilio({
            nombre: u.nombre.trim(),
+           material: u.material,
            tipo:u.tipo,
            usos: u.usos,
+           apto_lavavajillas: u.apto_lavavajillas === "true" || u.apto_lavavajillas === true
         });
 
         if (utensilios) {
@@ -134,17 +140,18 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
     }
     }
 
-    if (ingredientes) {
         const ingredientesArray = JSON.parse(ingredientes);
         
         for (const ing of ingredientesArray) {
-            if (!ing.nombre || !ing.cantidad || !ing.unidad) {
+            if (!ing.nombre || !ing.tipo || !ing.calorias || !ing.cantidad || !ing.unidad || !ing.origen ) {
                 continue; 
             }
-
             const ingrediente = await findOrCreateIngrediente({
                 nombre: ing.nombre.trim(),
-                descripcion: `Ingrediente usado en: ${nombre}`
+                tipo: ing.tipo,
+                calorias: ing.calorias,
+                descripcion: `Ingrediente usado en: ${nombre}`,
+                origen: ing.origen
             });
 
             if (ingrediente) {
@@ -157,7 +164,7 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
                 });
             }
         }
-    }
+    
 
     res.status(201).json({
         message: "Receta creada exitosamente",

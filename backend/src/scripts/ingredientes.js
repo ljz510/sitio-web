@@ -93,7 +93,7 @@ const deleteRelacionIngReceta = async (recetaId, ingredienteId ) => {
 
 
 // ----------------------------RELACIONES CON RECETA-------------------------------------------------------
-async function findOrCreateIngrediente({ nombre, tipo = 'general', calorias = 0, descripcion, origen= 'Nacional' }) {
+async function findOrCreateIngrediente({ nombre, tipo, calorias, descripcion, origen}) {
   try {
       let result = await dbClient.query(
           "SELECT * FROM ingrediente WHERE LOWER(nombre) = LOWER($1)",

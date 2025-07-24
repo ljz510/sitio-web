@@ -90,9 +90,9 @@
       <label for="dificultad" class="form-label">Dificultad</label>
       <select class="form-select" id="dificultad" name="dificultad" required>
         <option value="">Seleccionar dificultad</option>
-        <option value="fácil">Fácil</option>
-        <option value="media">Media</option>
-        <option value="difícil">Difícil</option>
+        <option value="Fácil">Fácil</option>
+        <option value="Media">Media</option>
+        <option value="Difícil">Difícil</option>
       </select>
     </div>
 
@@ -144,14 +144,20 @@
     <script>
       let ingredientes = [];
       
-      function agregarIngrediente(nombre = '', cantidad = '', unidad = '') {
+      function agregarIngrediente(nombre = '', tipo = '', calorias = '', cantidad = '', unidad = '', origen = '') {
         const index = ingredientes.length;
       
         const container = document.createElement('div');
         container.className = 'mb-2 row align-items-end';
         container.innerHTML = `
           <div class="col">
-            <input type="text" class="form-control" placeholder="Nombre" onchange="actualizarIngrediente(${index}, 'nombre', this.value)" value="${nombre}">
+            <input type="text" class="form-control" placeholder="Nombre" onchange="actualizarIngrediente(${index}, 'nombre', this.value)" value="${nombre}" required>
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" placeholder="Tipo" onchange="actualizarIngrediente(${index}, 'tipo', this.value)" value="${tipo}" required>
+          </div>
+          <div class="col">
+            <input type="number" class="form-control" placeholder="Calorías" onchange="actualizarIngrediente(${index}, 'calorias', this.value)" value="${calorias}" step="1">
           </div>
           <div class="col">
             <input type="text" class="form-control" placeholder="Cantidad" onchange="actualizarIngrediente(${index}, 'cantidad', this.value)" value="${cantidad}">
@@ -159,14 +165,16 @@
           <div class="col">
             <input type="text" class="form-control" placeholder="Unidad" onchange="actualizarIngrediente(${index}, 'unidad', this.value)" value="${unidad}">
           </div>
+          <div class="col">
+            <input type="text" class="form-control" placeholder="Origen (país)" onchange="actualizarIngrediente(${index}, 'origen', this.value)" value="${origen}">
+          </div>
           <div class="col-auto">
             <button type="button" class="btn btn-danger" onclick="eliminarIngrediente(${index})">X</button>
           </div>
         `;
       
         document.getElementById('ingredientes-list').appendChild(container);
-      
-        ingredientes.push({ nombre, cantidad, unidad });
+        ingredientes.push({ nombre, tipo, calorias, cantidad, unidad, origen});
         actualizarCampoOcultoIng();
       }
       
@@ -185,13 +193,13 @@
         document.getElementById('ingredientes-list').innerHTML = '';
         const copia = [...ingredientes];
         ingredientes = [];
-        copia.forEach(i => agregarIngrediente(i.nombre, i.cantidad, i.unidad));
+        copia.forEach(i => agregarIngrediente(i.nombre, i.tipo, i.calorias, i.cantidad, i.unidad));
       }
       
       function actualizarCampoOcultoIng() {
         document.getElementById('ingredientes-json').value = JSON.stringify(ingredientes);
       }
-      </script>
+    </script>
 
   <!-- -----------------------------Utensilios------------------------------------ -->
 <div id="utensilios-container" class="mb-3">
@@ -205,7 +213,7 @@
 <script>
   let utensilios = [];
   
-  function agregarUtensilios(nombre = '', tipo = '', usos = '') {
+  function agregarUtensilios(nombre = '', material = '', tipo = '', usos = '', apto_lavavajillas = false) {
     const index = utensilios.length;
   
     const container = document.createElement('div');
@@ -215,10 +223,19 @@
         <input type="text" class="form-control" placeholder="Nombre" onchange="actualizarUtensilios(${index}, 'nombre', this.value)" value="${nombre}">
       </div>
       <div class="col">
-        <input type="text" class="form-control" placeholder="tipo" onchange="actualizarUtensilios(${index}, 'tipo', this.value)" value="${tipo}">
+        <input type="text" class="form-control" placeholder="Material" onchange="actualizarUtensilios(${index}, 'material', this.value)" value="${material}">
       </div>
       <div class="col">
-        <input type="text" class="form-control" placeholder="usos" onchange="actualizarUtensilios(${index}, 'usos', this.value)" value="${usos}">
+        <input type="text" class="form-control" placeholder="Tipo" onchange="actualizarUtensilios(${index}, 'tipo', this.value)" value="${tipo}">
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Usos" onchange="actualizarUtensilios(${index}, 'usos', this.value)" value="${usos}">
+      </div>
+      <div class="col-auto">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="lavavajillas-${index}" ${apto_lavavajillas ? 'checked' : ''} onchange="actualizarUtensilios(${index}, 'apto_lavavajillas', this.checked)">
+          <label class="form-check-label" for="lavavajillas-${index}">Apto Lavavajillas</label>
+        </div>
       </div>
       <div class="col-auto">
         <button type="button" class="btn btn-danger" onclick="eliminarUtensilios(${index})">X</button>
@@ -227,7 +244,7 @@
   
     document.getElementById('utensilios-list').appendChild(container);
   
-    utensilios.push({ nombre, tipo, usos });
+    utensilios.push({ nombre, material, tipo, usos, apto_lavavajillas});
     actualizarCampoOcultoUten();
   }
   
@@ -246,7 +263,7 @@
     document.getElementById('utensilios-list').innerHTML = '';
     const copia = [...utensilios];
     utensilios = [];
-    copia.forEach(i => agregarUtensilios(i.nombre, i.tipo, i.usos));
+    copia.forEach(i => agregarUtensilios(i.nombre, i.material, i.tipo, i.usos, i.apto_lavavajillas));
   }
   
   function actualizarCampoOcultoUten() {

@@ -12,17 +12,17 @@ const dbClient = new Pool({
 // ------------------------------- GET -------------------------------
 
 // Función para los utensilios de una receta
-const getUtensilioByReceta= async (id) => {
-    const query = `
-    SELECT u.id,u.nombre,u.material,u.tipo
+const getUtensiliosByReceta = async (id) => {
+  const utensiliosQuery = `
+    SELECT u.id, u.nombre, u.material, u.tipo, u.usos, u.apto_lavavajillas
     FROM utensilios u
-    INNER JOIN UtenPorReceta upr
-    ON u.id = upr.utensilio_id
-    WHERE upr.receta_id = $1;
+    JOIN utenporreceta upr ON u.id = upr.utensilio_id
+    WHERE upr.receta_id = $1
   `;
-  const utensiliosResult = await dbClient.query(query, [id]);
+  const utensiliosResult = await dbClient.query(utensiliosQuery, [id]);
   return utensiliosResult.rows;
 };
+
 
 // Función para obtener todos los utensilios
 const getAllUtensilios = async () => {
@@ -52,24 +52,14 @@ const getUtensilioPorNombre = async (nombre) => {
   return result.rows[0];  // Devuelve undefined si no existe
 }
 
-const getUtensiliosByReceta = async (id) => {
-  const utensiliosQuery = `
-    SELECT u.id, u.nombre, u.material, u.tipo, u.usos, u.apto_lavavajillas
-    FROM utensilio u
-    JOIN utenporreceta upr ON u.id = upr.utensilio_id
-    WHERE upr.receta_id = $1
-  `;
-  const utensiliosResult = await dbClient.query(utensiliosQuery, [id]);
-  return utensiliosResult.rows;
-};
 
 
 // ------------------------------- POST -------------------------------
 
 // Función para crear un utensilio
-const createUtensilio = async ({ nombre, material = "Desconocido", tipo, usos, apto_lavavajillas=false }) => {
+const createUtensilio = async ({ nombre, material, tipo, usos, apto_lavavajillas }) => {
   const result = await dbClient.query(
-    "INSERT INTO Utensilio (nombre, material, tipo, usos, apto_lavavajillas) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+    "INSERT INTO Utensilios (nombre, material, tipo, usos, apto_lavavajillas) VALUES ($1, $2, $3, $4, $5) RETURNING *",
     [nombre, material, tipo, usos, apto_lavavajillas]
   );
   return result.rows[0];
@@ -109,7 +99,7 @@ const deleteUtensilio = async (id) => {
 
   await dbClient.query('DELETE FROM UtenPorReceta WHERE utensilio_id = $1', [id]);
 
-  const result = await dbClient.query('DELETE FROM Utensilio WHERE id = $1 RETURNING id', [id]);
+  const result = await dbClient.query('DELETE FROM Utensilios WHERE id = $1 RETURNING id', [id]);
 
   if (result.rowCount === 0) {
     await dbClient.query('ROLLBACK');
@@ -137,7 +127,6 @@ module.exports = {
   getAllUtensilios,
   getOneUtensilio,
   getUtensilioPorNombre,
-  getUtensilioByReceta,
   createUtensilio,
   deleteUtensilio,
   updateUtensilio,
