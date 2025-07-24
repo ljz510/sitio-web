@@ -57,34 +57,27 @@ async function getRecetaPorNombre(nombre) {
 async function createReceta({ nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen }) {
     let result;
     try {
-        if (imagen != undefined) {
-            result = await dbClient.query(
-                "INSERT INTO receta (nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-                [nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen]
-            );
-        } else {
-            result = await dbClient.query(
-                "INSERT INTO receta (nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen) VALUES ($1, $2, $3, $4, $5, NULL) RETURNING *",
-                [nombre, descripcion, tiempo_preparacion, porciones, dificultad]
-            );
-        }
-        return result.rows[0];
+      result = await dbClient.query(
+        "INSERT INTO receta (nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        [nombre, descripcion, tiempo_preparacion, porciones, dificultad, imagen]
+      );
+      return result.rows[0];
     } catch (error) {
-        console.error("Error al crear receta:", error); // Agregá esto para ayudarte a debuggear
-        return undefined;
+      console.error("Error al crear receta:"); // Agregá esto para ayudarte a debuggear
+      return undefined;
     }
 }
 
-async function createPasos({ receta_id, cantidad_pasos, dificultad = "x", tiempo_estimado = 0, receta_entera, apto_para }) {
+async function createPasos({ receta_id, cantidad_pasos, receta_entera, apto_para }) {
   try {
     const result = await dbClient.query(
-      "INSERT INTO pasos (receta_id, cantidad_pasos, dificultad, tiempo_estimado, receta_entera, apto_para) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [receta_id, cantidad_pasos, dificultad, tiempo_estimado, receta_entera, apto_para]
+      "INSERT INTO pasos (receta_id, cantidad_pasos, receta_entera, apto_para) VALUES ($1, $2, $3, $4) RETURNING *",
+      [receta_id, cantidad_pasos, receta_entera, apto_para]
     );
     return result.rows[0];
   } catch (error) {
-    console.error("Error al crear pasos:", error);
-    return undefined;
+      console.error("Error al crear pasos:");
+      return error;
   }
 }
 

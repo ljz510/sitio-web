@@ -124,8 +124,10 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
      
         const utensilios = await createUtensilio({
            nombre: u.nombre.trim(),
+           material: u.material,
            tipo:u.tipo,
            usos: u.usos,
+           apto_lavavajillas: u.apto_lavavajillas === "true" || u.apto_lavavajillas === true
         });
 
         if (utensilios) {
@@ -141,13 +143,15 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
         const ingredientesArray = JSON.parse(ingredientes);
         
         for (const ing of ingredientesArray) {
-            if (!ing.nombre || !ing.cantidad || !ing.unidad) {
+            if (!ing.nombre || !ing.tipo || !ing.calorias || !ing.cantidad || !ing.unidad || !ing.origen ) {
                 continue; 
             }
-
             const ingrediente = await findOrCreateIngrediente({
                 nombre: ing.nombre.trim(),
-                descripcion: `Ingrediente usado en: ${nombre}`
+                tipo: ing.tipo,
+                calorias: ing.calorias,
+                descripcion: `Ingrediente usado en: ${nombre}`,
+                origen: ing.origen
             });
 
             if (ingrediente) {
