@@ -153,7 +153,7 @@ function Receta() {
       });
     })
     .catch((err) => {
-      console.error("Error cargando receta:", err);
+      console.error("Error cargando receta: ", err);
       document.getElementById("detalle-receta").innerHTML =
         '<p class="text-center text-red-600">Error al cargar la receta.</p>';
     });
