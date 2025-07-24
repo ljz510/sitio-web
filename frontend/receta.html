@@ -8,6 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script type="module" src="./js/delete_recetas.js"></script>
+  <script type="module" src="./js/update_recetas.js"></script>
+  <script type="module" src="./js/update_utensilios.js"></script>
   <script type="module" src="./js/receta.js"></script>
   <link rel="icon" href="img/logo.png" type="image/png" />
   <link rel="stylesheet" href="css/styles.css" />
@@ -80,5 +82,60 @@
   <main id="detalle-receta" class="p-8">
   </main>
 </div>
+<!-- Modal editar receta -->
+
+<div id="modalEditarReceta" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 overflow-y-auto">
+  <div class="bg-white p-6 rounded-xl w-[95%] max-w-2xl shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Editar Receta</h2>
+    <form id="formEditarReceta" class="space-y-4">
+      <div>
+        <label>Nombre:</label>
+        <input type="text" id="edit-nombre" class="w-full p-2 border rounded" required />
+      </div>
+
+      <div>
+        <label>Descripción:</label>
+        <textarea id="edit-descripcion" class="w-full p-2 border rounded" required></textarea>
+      </div>
+
+    <div class="mb-3">
+      <label for="edit-pasos" class="form-label">Pasos de la preparación *</label>
+      <textarea id="edit-pasos" class="form-control" rows="6" placeholder="Describí los pasos de la receta..." required></textarea>
+    </div>
+
+
+
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label>Tiempo (min):</label>
+          <input type="number" id="edit-tiempo" class="w-full p-2 border rounded" required />
+        </div>
+        <div>
+          <label>Porciones:</label>
+          <input type="number" id="edit-porciones" class="w-full p-2 border rounded" required />
+        </div>
+        <div>
+          <label>Dificultad:</label>
+          <select id="edit-dificultad" class="w-full p-2 border rounded" required>
+            <option value="">Seleccionar</option>
+            <option value="Fácil">Fácil</option>
+            <option value="Media">Media</option>
+            <option value="Difícil">Difícil</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+
+      <div class="flex justify-end gap-2 mt-4">
+        <button type="button" id="cancelarEdicion" class="bg-gray-400 px-4 py-2 rounded text-white">Cancelar</button>
+        <button type="submit" class="bg-blue-600 px-4 py-2 rounded text-white">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
 </body>
 </html>

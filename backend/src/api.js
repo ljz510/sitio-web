@@ -9,6 +9,9 @@ const app = express();
 app.use(express.json());
 app.use(cors())
 app.use('/images', express.static(path.join(__dirname, '..','public','images')));
+// permite servir archivos estáticos desde la carpeta frontend
+app.use(express.static(path.join(__dirname, '../../frontend')));
+
 
 // Define carpeta de destino y nombre de archivo
 const storage = multer.diskStorage({
@@ -30,7 +33,7 @@ const PORT = process.env.PORT || 3000;
 //Import funciones
 
 const {getAllRecetas, getOneReceta, createReceta, deleteReceta, getRecetaPorNombre, updateReceta, createPasos} = require('./scripts/recetas.js')
-const {getIngredientesByReceta, getAllIngredientes, createIngrediente, updateIngrediente, deleteIngrediente, findOrCreateIngrediente, createIngPorReceta, deleteRelacionIngReceta} = require('./scripts/ingredientes.js');
+const {getIngredientesByReceta, getAllIngredientes, createIngrediente, updateIngrediente, deleteIngrediente, findOrCreateIngrediente, createIngPorReceta, deleteRelacionIngReceta, updateIngDeReceta} = require('./scripts/ingredientes.js');
 const { getAllUtensilios, getOneUtensilio, getUtensilioPorNombre, getUtensilioByReceta, createUtensilio, updateUtensilio, deleteUtensilio, createUtensilioPorReceta, deleteRelacionUtensilioReceta} = require('./scripts/utensilios.js');
 
 // Health
@@ -124,8 +127,10 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
      
         const utensilios = await createUtensilio({
            nombre: u.nombre.trim(),
+           material: u.material,
            tipo:u.tipo,
            usos: u.usos,
+           apto_lavavajillas: u.apto_lavavajillas === "true" || u.apto_lavavajillas === true
         });
 
         if (utensilios) {
@@ -141,13 +146,15 @@ app.post("/api/recetas", upload.single('imagen'), async (req, res) => {
         const ingredientesArray = JSON.parse(ingredientes);
         
         for (const ing of ingredientesArray) {
-            if (!ing.nombre || !ing.cantidad || !ing.unidad) {
+            if (!ing.nombre || !ing.tipo || !ing.calorias || !ing.cantidad || !ing.unidad || !ing.origen ) {
                 continue; 
             }
-
             const ingrediente = await findOrCreateIngrediente({
                 nombre: ing.nombre.trim(),
-                descripcion: `Ingrediente usado en: ${nombre}`
+                tipo: ing.tipo,
+                calorias: ing.calorias,
+                descripcion: `Ingrediente usado en: ${nombre}`,
+                origen: ing.origen
             });
 
             if (ingrediente) {
@@ -267,6 +274,15 @@ app.post('/api/ingredientes', async (req, res) => {
 app.put('/api/ingredientes/:id', async (req, res) => {
   try {
     const actualizado = await updateIngrediente(req.params.id, req.body);
+    res.json(actualizado);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+app.put('/api/ing_por_receta', async (req, res) => {
+  try {
+    const actualizado = await updateIngDeReceta(req.body);
     res.json(actualizado);
   } catch (error) {
     res.status(404).json({ error: error.message });
